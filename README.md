@@ -1,4 +1,4 @@
-<img src="assets/robusta-logo.png" alt="Robusta logo" width="160">
+<img src="assets/robusta-logo-v2.png" alt="Robusta logo" width="160">
 
 # Robusta
 
