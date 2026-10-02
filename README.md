@@ -1,3 +1,5 @@
+<img src="assets/robusta-logo.png" alt="Robusta logo" width="160">
+
 # Robusta
 
 Robusta is a collection of agent skills. **Drip** is the first skill: a coordinator for supervised worker agents using [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
