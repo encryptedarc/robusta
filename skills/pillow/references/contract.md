@@ -23,7 +23,7 @@ Git
 
 Time and budget
 - When is the user back? That is the deadline: no new ticket starts that cannot finish before it, and auto-resume stops there.
-- Usage now and reset time: the user's figure wins if they gave one. Per-run cap in points spent, default 40; write the stop line (`remaining at bedtime − cap`) into the contract. See routing.md.
+- Usage now and reset time: the user's figure wins if they gave one. Choose the window for the per-run cap (weekly when available), default 40 points; record its identity and the initial stop line. Carry spent points across resets per routing.md.
 - Model tiers: if a per-machine model file exists, confirm it; otherwise the agent's configured default for every tier. Frontier models only if named here.
 
 ## Preflight checklist
@@ -48,7 +48,8 @@ Run while the user is still present. A failed item is reported now, not discover
 - Repository: <path> · Branch: <name> · Tracker: <github | azure-devops | none> (from origin)
 - Git level: L<0-3>
 - Deadline: <time> · No new ticket after: <time>
-- Usage at bedtime: <remaining>% of <window>, resets <time> (source: user-supplied | tool) · Cap: <n> points → stop line: <remaining − n>%
+- Usage at bedtime: <remaining>% of <window>, resets <time> (source: user-supplied | tool)
+- Cap window: <identity/duration> · Cap: <n> points · Spent: 0 · Initial stop line: <remaining − n>% (reset accounting: routing.md)
 - Models: fast = <id/effort> · strong = <id/effort> · reviewer = <id/effort>
 - Pillow may decide alone: <list>
 - Must park: <list>

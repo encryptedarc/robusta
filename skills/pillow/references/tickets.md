@@ -26,8 +26,14 @@ Avoid file paths and code snippets in **What to build**; they go stale. Put path
 
 **Status:** ready | running | review | done | parked | failed | blocked
 
+**Execution:** <absolute working directory> · Git level: L<n>
+
+**Baseline:** <base commit or none> · Snapshot: <absolute snapshots/NN-before/ path>
+
+**Integration:** <pending | source SHA → integrated SHA | L0 accepted manifest path>
+
 ## Ownership
-Files and folders this worker may create or edit. Everything else is read-only.
+Files and folders this worker may create or edit. Everything else is read-only, except that the maker fills only the Result section of this assigned ticket; the coordinator owns its baseline, acceptance and integration fields.
 - <path>
 - <shared file> — append-only under `// ticket NN`
 

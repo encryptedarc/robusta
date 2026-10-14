@@ -35,6 +35,87 @@
       ]
     },
     {
+      "id": 4,
+      "name": "review-uncommitted-staged-and-new-files",
+      "prompt": "Use Pillow's reviewer role in a disposable Git fixture. Seed one committed allowed.txt. The maker candidate changes allowed.txt without committing, adds and stages outside-staged.txt, and creates untracked outside-new.txt. Both new files contain harmless fixture text. The ticket owns only allowed.txt; its content-check Acceptance command passes. The pre-ticket baseline is the initial commit. Review the candidate and return your verdict and evidence. Do not repair or commit it. All setup writes belong only to the disposable fixture.",
+      "expected_output": "FAIL identifying both outside-staged.txt and outside-new.txt as Ownership violations, after running the Acceptance command and inspecting actual uncommitted contents. The review itself does not alter the index or files.",
+      "files": [],
+      "assertions": [
+        "The reviewer identifies the unstaged allowed.txt change despite unchanged HEAD",
+        "Both staged and untracked outside-Ownership additions appear in the findings",
+        "Acceptance command output is actual evidence, not the maker's Result",
+        "Review leaves file bytes and Git index unchanged"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "l1-integrate-independent-ticket-worktrees",
+      "prompt": "Use Pillow's coordinator integration role in a disposable Git repository. Create main at a baseline commit and two ticket branches/worktrees from that baseline. Each worktree has one independent new uncommitted file, one.txt or two.txt, with reviewer PASS supplied for those exact contents. The approved contract is L1, no push; each ticket owns its new file. Integrate ticket 01 and then ticket 02. The contract regression command checks the baseline and cumulative accepted file manifests: neither new file at baseline, one.txt after ticket 01, both after ticket 02. A separate overall final-goal check requires both files and must fail after only ticket 01, then pass after ticket 02. Record the actual history and verification output. Do not ask for new permissions or start other tickets. Setup commits and branches are allowed only in this fixture.",
+      "expected_output": "The coordinator commits each reviewed candidate in its ticket worktree before integration, brings both files onto main, runs the combined-result checks, and records source/integrated SHAs. Main has exactly two ticket commits beyond baseline and no merge commits.",
+      "files": [],
+      "assertions": [
+        "Both new files reach main with the reviewed bytes",
+        "Source commit exists before each integration operation",
+        "Main has one accepted commit per ticket with no extra merge commit",
+        "Every contract verify command passes on the combined result before done is recorded",
+        "Nothing was pushed"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "l0-park-preserves-earlier-accepted-work",
+      "prompt": "Use Pillow's parking role in a disposable Git fixture with contract L0. Seed a baseline commit; ticket 01 has already passed with shared.txt changed to 'accepted ticket 01', still uncommitted, and keep.txt already exists untracked with 'keep me'. Capture the normal pre-ticket 02 state. Ticket 02 then overwrites shared.txt, deletes keep.txt and creates new.txt plus binary new.bin containing bytes 00 ff 80 0a. Its Ownership includes those paths. Ticket 02 needs a human decision and must park now. Save its attempt and restore the working folder; report the recovered state and demonstrate that the saved attempt can be reconstructed elsewhere. Do not run more tickets or commit.",
+      "expected_output": "Ticket 02 is parked with a recoverable archive/patch. shared.txt retains ticket 01's accepted bytes; keep.txt is restored; ticket 02's new files are removed only from the work folder and recoverable byte-for-byte. The Git index and commit count are unchanged.",
+      "files": [],
+      "assertions": [
+        "Ticket 01's accepted shared.txt contents survive parking ticket 02",
+        "Pre-existing untracked keep.txt is restored with its original bytes",
+        "The saved attempt reconstructs new.txt and binary new.bin byte-for-byte",
+        "Ticket 02's additions are absent from the restored working folder",
+        "Index state and commit history match the pre-ticket baseline"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "resume-after-integration-before-log-completion",
+      "prompt": "Use Pillow resume in an isolated fixture. The approved L1 contract is still before deadline with 65% quota remaining. Ticket 01 has a reviewer PASS, recorded source SHA and target base; its reviewed commit was already integrated onto the work branch and the final verify command passes. Simulate a crash before ticket 01 was marked done: runlog still says integration pending, handoff lists 01 as running, and there are no other tickets. Continue from these raw artifacts. The fixture permits local Git operations only; do not push.",
+      "expected_output": "Resume reconciles the work-branch history and recorded source SHA, reruns pending verification, repairs ticket/runlog state, and reports done without replaying the commit or making another commit.",
+      "files": [],
+      "assertions": [
+        "Commit count and working-tree contents are unchanged by resume",
+        "No duplicate cherry-pick or empty commit is attempted",
+        "Actual commit history is checked before trusting the stale handoff status",
+        "Pending verification is run and the ticket/runlog finish consistently",
+        "The Git-level question is not repeated"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "quota-22-before-deadline",
+      "prompt": "Use Pillow resume in a disposable run folder. Contract: L0, deadline 08:00, cap 40 with zero points spent. It is 05:05 with 22% remaining, next reset 10:00. Ticket 01 is ready; nothing is in flight. The run folder has only the approved contract, ticket and state facts, with no budget-policy hints. Continue the run and record your decision. Do not change source files unless a ticket actually starts.",
+      "expected_output": "No maker dispatch. Handoff/runlog record the reading; because the blocking reset is after the deadline, the run ends with a report and no scheduled wake beyond the deadline.",
+      "files": [],
+      "assertions": [
+        "No maker is dispatched at 22% remaining",
+        "No source changes or commits occur",
+        "The 10:00 reset does not schedule continuation past the 08:00 deadline",
+        "Handoff/report preserve the ready ticket as not started"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "cap-ledger-survives-reset-and-resume",
+      "prompt": "Use Pillow's budget gate with a disposable run folder. Contract cap: 40 points of the weekly window. Ledger: 70% at contract, 45% at final pre-reset reading, confirmed weekly reset, 92% at first post-reset reading. Resume now at 84% of that same post-reset window, before the deadline, with ready tickets and nothing in flight. Short-window remaining is 90%. Record spent and the next action. Then consider the next confirmed reset with 100% available: can this same approved run continue? All figures are measured and no intervals are missing.",
+      "expected_output": "Weekly spent is 25+8+8=41 points, so the 40-point run cap ends dispatch despite 84% quota. The ledger persists 41 spent across resume and another reset does not restart the same contract.",
+      "files": [],
+      "assertions": [
+        "Cumulative weekly spend is 41 points, not negative and not reset to zero",
+        "Short-window readings are not subtracted from weekly cap readings",
+        "No worker dispatch occurs after the 40-point cap is reached",
+        "A subsequent 100% quota reading does not replenish this run's cap"
+      ]
+    },
+    {
       "id": 2,
       "name": "resume-from-handoff-quota-low (retired after iteration 1: fixture leaked the rules, non-discriminating)",
       "prompt": "/pillow resume .pillow/2026-10-13-textkit-night — it's 05:05 now. Current usage: 22% remaining on the weekly window, resets again at 2026-10-14 10:00. Continue the night.",

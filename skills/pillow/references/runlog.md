@@ -7,12 +7,13 @@ These three files are the coordinator's memory. The conversation is not: it gets
 | When | Write |
 |------|-------|
 | run created | contract summary, usage before start, ticket table with empty result columns |
-| ticket dispatched | ticket, tier/model actually used, worktree, time |
+| ticket dispatched | ticket, tier/model actually used, working directory, base commit, snapshot/manifest, time |
 | each review round | round number, PASS or the findings in one line each |
-| merged | commit sha, build result after merge |
+| integration pending | reviewed content manifest, source commit SHA, target work-branch base before integration |
+| integrated / L0 accepted | source/integrated SHA or L0 manifest, every contract verify result; only then mark done |
 | parked | the question, options, recommendation, which tickets it blocks |
 | failed | last findings, where the patch is saved |
-| quota wait | lowest remaining, reset time, what was in flight |
+| quota reading / wait | per-window remaining/reset, measured or estimated source, cap ledger (last reading and cumulative spent), what was in flight |
 | breaker tripped | which rule, what was running |
 | run closed | usage after, lessons for the next contract |
 
@@ -20,6 +21,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 # Pillow run — <date> <slug>
 - Contract: contract.md · Branch: <name> · Git level: L<n>
 - Usage at start: <window> <remaining>% (source) · Cap: <n>%
+- Cap ledger: <window identity/reset boundary> · Last remaining: <n>% · Cumulative spent: <n> points · Source: <measured | estimated; uncertain intervals>
 
 | # | Ticket | Tier (effective) | Round 1 | Round 2 | Round 3 | Status | Commit |
 |---|--------|------------------|---------|---------|---------|--------|--------|
@@ -38,12 +40,12 @@ These three files are the coordinator's memory. The conversation is not: it gets
 
 ```markdown
 # Pillow handoff — <date> <slug>
-- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | deadline | breaker: <rule> | repository changed
+- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | cap (<spent>/<cap> points) | deadline | breaker: <rule> | repository changed
 - Resume no later than: <deadline>
 
 ## Frontier
 - Done: 01, 02
-- Running: 03 — worktree <path>, uncommitted work present | none
+- Running: 03 — worktree <path>, baseline <commit/snapshot>, review round <n>, source/integrated SHA <sha/pending>, verification <pending/passed> | none
 - Parked: 04 (see report Waiting for you)
 - Blocked: 05 (by 04)
 - Not started: 06, 07
@@ -57,7 +59,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 contract.md · runlog.md · tickets/03-*.md
 ```
 
-Resume reads this file and the contract, then continues at step 1 of Next steps. It does not re-ask the Git question unless the repository changed from outside.
+Resume reads this file, the contract and runlog's cap ledger, then reconciles the actual working directory, snapshots, commit history and any pending integration per workers.md before continuing Next steps. It does not re-ask the Git question unless the repository changed from outside. A recorded done ticket is never blindly replayed; cap and deadline stops remain stopped.
 
 ## report.md — written last, shown in chat
 
