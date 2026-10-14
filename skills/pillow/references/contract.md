@@ -1,0 +1,62 @@
+# Plan and contract
+
+The plan phase is an interview, not a form. Ask one question at a time, give a recommended answer with each, and resolve dependencies between decisions in order — scope before slicing, slicing before Git level, Git level before tracker. Prefer exploring the repository over asking when the code can answer. Stop when every ticket is unambiguous or explicitly parked.
+
+## Questions to cover
+
+Scope
+- What does "done" look like for the whole request, in one sentence the user would accept in the morning?
+- Which parts are in, and which are deliberately out tonight?
+- Is there existing uncommitted work in the tree? It belongs to the user: commit, stash, or branch it before anything else. Never discard it.
+
+Risk
+- Which tickets are high-risk: production data, sending anything, money, security controls, schema or data migrations, deletions, large ports with unclear behaviour? These are parked unless the user approves each by name.
+- For each ticket, what is the verify command or check that proves it works without a human looking?
+
+Decisions Pillow may make alone
+- Which kinds of choices are implementation detail (free) and which need the user (park)? Examples: naming, file placement, library already in use = free; new dependency, API contract change, behaviour the spec leaves open = park.
+
+Git
+- Level L0 to L3 (see SKILL.md). Ask every run, recommend L1.
+- Branch name, following the format the repository already uses if one is visible in `git branch -a`.
+- Tracker, from `git remote get-url origin`. Ask only when the remote does not decide it.
+
+Time and budget
+- When is the user back? That is the deadline: no new ticket starts that cannot finish before it, and auto-resume stops there.
+- Usage now and reset time: the user's figure wins if they gave one. Per-run cap in points spent, default 40; write the stop line (`remaining at bedtime − cap`) into the contract. See routing.md.
+- Model tiers: if a per-machine model file exists, confirm it; otherwise the agent's configured default for every tier. Frontier models only if named here.
+
+## Preflight checklist
+
+Run while the user is still present. A failed item is reported now, not discovered at night.
+
+- [ ] Every verify command ran once on the baseline; its output is saved in the run folder so a reviewer can diff existing behaviour byte-for-byte
+- [ ] `gh auth status` or `az account show` succeeds when L3 or tracker intake needs it
+- [ ] Planned commands run without a permission prompt (dry-run one build and one test)
+- [ ] User confirmed the machine will stay awake and online until the deadline — ask; do not change power or sleep settings yourself
+- [ ] Usage source answered, or the user supplied numbers and reset times
+- [ ] Run folder created and, if inside the repo, excluded from Git
+
+## contract.md template
+
+```markdown
+# Pillow contract — <date> <slug>
+
+- Approved by user at: <time>
+- Goal: <one sentence>
+- Out of scope tonight: <list>
+- Repository: <path> · Branch: <name> · Tracker: <github | azure-devops | none> (from origin)
+- Git level: L<0-3>
+- Deadline: <time> · No new ticket after: <time>
+- Usage at bedtime: <remaining>% of <window>, resets <time> (source: user-supplied | tool) · Cap: <n> points → stop line: <remaining − n>%
+- Models: fast = <id/effort> · strong = <id/effort> · reviewer = <id/effort>
+- Pillow may decide alone: <list>
+- Must park: <list>
+- High-risk tickets approved by name: <ids or none>
+- Verify commands: <commands>
+- Baseline results: <command → result>
+
+## Tickets (approved)
+| # | Title | Blocked by | Risk |
+|---|-------|------------|------|
+```

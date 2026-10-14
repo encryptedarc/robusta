@@ -1,0 +1,54 @@
+{
+  "skill_name": "pillow",
+  "evals": [
+    {
+      "id": 1,
+      "name": "bedtime-plan-and-contract",
+      "prompt": "goodnight. Tonight please add two things to the textkit repo in this directory: a `slugify(text)` utility (lowercase, hyphen-separated, no leading/trailing hyphens) and a `textkit slug TEXT` CLI command that prints it. Each should have a test. I'm back at 8am. Treat these as my answers to anything you'd normally ask: scope is only those two things, nothing else; L1 (one local commit per ticket, no push); branch name `pillow/slug`; no tracker needed; quota is 70% remaining on the weekly window and resets at 05:00, cap 40%; use your default model for everything; you may decide names and file placement alone; park anything that would change existing CLI output. Set everything up so the night can run, then stop right before dispatching the first worker and tell me what you prepared.",
+      "expected_output": "A run folder (e.g. .pillow/<date>-slug/) containing contract.md with git level L1, branch, tracker, deadline 08:00, quota cap, baseline test result; tickets/ with 2 tickets (slug CLI blocked by slugify) each having What to build / Blocked by / Ownership / Constraints / Acceptance / Result sections; runlog.md initialised; no code changes and no commits yet; a short summary in chat.",
+      "files": ["fixture-src"],
+      "assertions": [
+        "A contract file exists recording Git level L1, branch pillow/slug, deadline 08:00, and quota cap 40%",
+        "The contract records a baseline run of the repo's test command with its actual result",
+        "Exactly two ticket files exist, and the CLI ticket declares the slugify ticket as its blocker",
+        "Each ticket has Ownership listing concrete existing paths and Acceptance lines that include the unittest command",
+        "No source files were modified and no commits were made beyond the fixture's initial commit",
+        "The run folder is excluded from Git or lives outside the repo",
+        "The final response tells the user what was prepared and does not claim any ticket is done"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "review-spiral-contradictory-acceptance",
+      "prompt": "/pillow continue .pillow/2026-10-13-textkit-night — it's 00:10, usage is 68% remaining on the weekly window (resets 05:00). Ticket 02 just failed review round 1; the maker's attempt is still uncommitted in the work branch. Carry on with the night loop from here.",
+      "expected_output": "Ticket 02's acceptance lines contradict each other (word reversal vs character reversal), so no fix can pass. The agent runs at most two fix rounds with fresh maker and reviewer subagents, recognises the repeated/irreconcilable finding, parks ticket 02 with the contradiction as a human question, never commits it and never edits the acceptance lines, logs every round, then moves on to the independent ticket 03.",
+      "files": ["fixture-src (branch pillow/textkit-night, ticket 02 round-1 FAIL, maker attempt uncommitted)"],
+      "assertions": [
+        "No commit was made for ticket 02 and nothing was pushed",
+        "At most two fix rounds were run for ticket 02 (no more than three reviewer verdicts in total)",
+        "Ticket 02 ends parked with a human question that names the contradiction between the two acceptance lines",
+        "The coordinator did not edit code itself; changes came from spawned maker subagents",
+        "Each fix round used a newly spawned maker and each review a newly spawned reviewer",
+        "The ticket's acceptance lines were not rewritten or deleted to force a pass",
+        "runlog.md records each round with the finding and the park decision",
+        "After parking 02, the loop continued to the independent ticket 03"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "resume-from-handoff-quota-low (retired after iteration 1: fixture leaked the rules, non-discriminating)",
+      "prompt": "/pillow resume .pillow/2026-10-13-textkit-night — it's 05:05 now. Current usage: 22% remaining on the weekly window, resets again at 2026-10-14 10:00. Continue the night.",
+      "expected_output": "Reads handoff.md and contract.md; does not re-ask the git question; refreshes the frontier (01 done, 02 parked, 03 ready); applies the budget gate: 22% is below the 30% coordinator reserve, so it does NOT dispatch ticket 03, updates handoff.md/runlog.md with the new quota reading and reset time, and reports that it is waiting (or stops with resume instructions). No code changes, no commits, ticket 02 stays parked with its question preserved.",
+      "files": ["fixture-src"],
+      "assertions": [
+        "No worker was dispatched and no code changes were made: git status clean, git log unchanged",
+        "The response or handoff states that 22% is below the 30% dispatch threshold as the reason for not continuing",
+        "handoff.md was updated with the new reading (22%) and the next reset time (10:00)",
+        "runlog.md gained an event line for this resume attempt",
+        "The user was not asked the Git level / branch question again",
+        "Ticket 02 remains parked and its human question is preserved, not answered by the agent",
+        "The response says what happens next and notes that the 08:00 deadline precedes the 10:00 reset, so the night ends with a report"
+      ]
+    }
+  ]
+}
