@@ -4,36 +4,38 @@
 
 # Robusta
 
-Robusta is a collection of agent skills. **Drip** is the first skill: a coordinator for supervised worker agents using [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration). **Pillow** is the second: an overnight runner that plans with you, then works alone through subagents of the same AI.
+Robusta provides agent skills for coordinating engineering work with Claude Code and Codex. The skills run within your agent session and use its available tools and permissions.
 
-| Skill | What it does | Needs |
+| Skill | Purpose | Requirements |
 | --- | --- | --- |
-| [Drip](#install-drip) | Supervised fan-out of Tasks to Claude or Codex workers, routed by remaining quota | Orca Desktop + CLI |
-| [Pillow](#install-pillow) | Unattended night loop: tickets → maker → fresh reviewer → commit, parks decisions, waits out quota resets | Only the agent you already run |
+| [Drip](#install-drip) | Coordinate supervised work across Claude and Codex workers, selecting a provider based on available quota | Orca Desktop, its CLI, and at least one supported agent CLI |
+| [Pillow](#install-pillow) | Execute an approved work queue while you are away, with separate implementation and review steps | Claude Code or Codex with subagent and shell support |
 
 ## Install Drip
 
-Prerequisites: Orca Desktop with its CLI available, orchestration enabled, and at least one agent CLI that Orca can launch. Current Orca builds can expose active-account usage through `orca account list --json`; older builds need another trustworthy usage source. Use `orca skills get orchestration` for your installed Orca's coordination guide.
+You need Orca Desktop with orchestration enabled, its CLI available, and at least one Claude Code or Codex CLI that Orca can launch.
 
-Copy `skills/drip` into your agent's skill directory:
+Copy the complete [`skills/drip`](skills/drip) directory into the coordinating agent's skills directory:
 
 | Agent | Destination | Invocation |
 | --- | --- | --- |
 | Claude Code | `~/.claude/skills/drip/` | `/drip <task>` |
 | Codex | `~/.codex/skills/drip/` | `$drip <task>` |
 
-The destination must contain `SKILL.md` directly. Orca does not install Drip into the agent for you. Start a new agent session after copying if the skill does not appear immediately.
+The installed path must be `~/.claude/skills/drip/SKILL.md` or `~/.codex/skills/drip/SKILL.md`. If the skill is not listed after copying, start a new agent session.
+
+Drip reads the installed Orca CLI's coordination guide at the start of each run. With the standard `orca` executable, you can inspect that guide using `orca skills get orchestration`. For quota data, Drip uses `orca account list --json` when the installed CLI supports it; otherwise it needs another trustworthy source or figures you provide.
 
 ## How Drip works
 
 ```mermaid
 flowchart LR
-    U[User task] --> C[Drip coordinator]
-    C --> S[Read context and split Tasks]
-    S --> Q[Read Claude and Codex usage]
-    Q --> R[Choose worker and create Orca Dispatches]
+    U[User request] --> C[Drip coordinator]
+    C --> S[Define tasks and acceptance criteria]
+    S --> Q[Check active-account quota]
+    Q --> R[Select and dispatch workers through Orca]
     R --> W[Workers execute]
-    W --> M[Orca messages and worker_done]
+    W --> M[Receive status, questions, and results]
     M --> V[Coordinator reviews evidence]
     V --> I[Integrate accepted work]
     I --> O[Report outcomes]
@@ -41,66 +43,95 @@ flowchart LR
     V -->|needs correction| R
 ```
 
-1. **Scope:** Drip reads the request and repository rules, then writes self-contained Task specs with clear file ownership and observable acceptance.
-2. **Route:** It reads account-matched usage, computes the lowest remaining percentage across applicable quota windows, reserves capacity for its coordinator, and chooses Claude or Codex for each Task. Unknown usage is never guessed.
-3. **Dispatch:** It creates an Orca Run and starts the ready workers. Independent Tasks can run together; dependent Tasks wait for their prerequisites.
-4. **Supervise:** It receives questions, escalations, and completion messages through Orca. A quiet terminal is not treated as a completed worker.
-5. **Review:** It checks the real output against each Task spec and asks the owner to correct any gap.
-6. **Integrate:** It applies accepted work under the repository's Git rules, settles worker terminals, and reports evidence and blockers.
+1. **Define the work.** Read the request and repository rules, then create tasks with file ownership, dependencies, and verifiable acceptance criteria.
+2. **Select workers.** Check quota for the active accounts, reserve capacity for the coordinator, and choose Claude or Codex within your provider and model preferences.
+3. **Dispatch and supervise.** Start independent tasks concurrently through Orca. Track completion, handle worker questions, and ask you to resolve decisions outside the approved scope.
+4. **Review results.** Check the actual files and outputs against each task's acceptance criteria, and return incomplete work to its owner.
+5. **Integrate and report.** Apply accepted changes under the repository's Git and approval rules, complete worker cleanup, and report verified results and unresolved blockers.
 
 Example request:
 
 ```text
-/drip Split this feature into independent tasks, assign workers, review their results, and report blockers before integration.
+/drip Add CSV export to the orders page. Split independent work across available workers, verify the results, and report blockers before integration.
 ```
 
-Drip has no fixed model IDs, external quota-service dependency, or programming-language requirement. It reads the active account's Orca rate limits first; if no trustworthy usage source is available, it asks for the current numbers. It reads Orca's version-matched guide at the start of each run because the CLI may change.
+For detailed instructions, see the [Drip skill](skills/drip/SKILL.md) and [quota routing policy](skills/drip/references/usage-routing.md).
 
 ## Install Pillow
 
-Prerequisites: one agent CLI — Claude Code or Codex — that can spawn subagents and run shell commands. Git is optional (a plain folder works at `L0`). For `L3` or issue intake, `gh` or `az` must already be signed in; Pillow checks this before you leave and never changes settings itself.
+You need Claude Code or Codex with permission to create subagents and run shell commands. Pillow uses subagents from the same provider as the coordinating session. Git is required for commits, pushes, and pull requests; a plain folder is supported at level `L0`.
 
-Copy `skills/pillow` into your agent's skill directory:
+GitHub issue access and draft pull requests require an authenticated `gh` CLI. Azure DevOps work items and draft pull requests require an authenticated `az` CLI with the relevant commands available.
+
+Copy the complete [`skills/pillow`](skills/pillow) directory to your agent's skill directory:
 
 | Agent | Destination | Invocation |
 | --- | --- | --- |
 | Claude Code | `~/.claude/skills/pillow/` | `/pillow <task>` · `/pillow resume <run-folder>` |
 | Codex | `~/.codex/skills/pillow/` | `$pillow <task>` · `$pillow resume <run-folder>` |
 
-The destination must contain `SKILL.md` directly. Start a new agent session after copying if the skill does not appear immediately. Optional: a `~/.pillow/models.md` file mapping the `fast` and `strong` tiers to the model ids and effort you allow; without it Pillow uses the agent's default model for every role and never a frontier-class model unless you name one.
+The installed path must be `~/.claude/skills/pillow/SKILL.md` or `~/.codex/skills/pillow/SKILL.md`. If the skill is not listed after copying, start a new agent session.
+
+Optional model configuration belongs in `~/.pillow/models.md`, which maps the `fast` and `strong` tiers to model IDs and effort settings. Without that file, Pillow uses the agent's configured defaults. Model choices are confirmed as part of run approval; see the [model and budget policy](skills/pillow/references/routing.md).
 
 ## How Pillow works
 
 ```mermaid
 flowchart LR
-    U[User task] --> I[Intake: prompt, file, issue or WI]
-    I --> P[Plan with you: grill and slice tickets]
-    P --> C[Contract: Git level, deadline, budget]
-    C --> G[Budget gate]
-    G --> M[Maker subagent]
+    U[User request] --> I[Read requirements and repository rules]
+    I --> P[Define tickets with you]
+    P --> C[Approve scope, Git permissions, deadline, and budget]
+    C --> G[Check quota and run limits]
+    G --> M[Implementation subagent]
     M --> R[Reviewer subagent]
-    R --> X[Merge, commit, run log]
-    X --> G
-    X --> O[Morning report]
-    R -->|fail, new maker, max 2 rounds| M
-    R -->|repeated finding or spec gap| K[Park for you]
-    G -->|quota floor or deadline| H[Handoff, wait for reset]
-    H -->|resume| G
+    R --> X[Integrate, verify, run log]
+    X -->|tickets remain| G
+    X -->|queue complete| O[Completion report]
+    R -->|fix required, at most 2 rounds| M
+    R -->|decision required or fixes exhausted| K[Save attempt and defer ticket]
+    G -->|insufficient quota| H[Save handoff]
+    H -->|eligible resume| G
+    G -->|deadline or budget cap reached| O
 ```
 
-An interactive version with guided views lives at [assets/pillow-workflow.html](assets/pillow-workflow.html).
+An [interactive workflow diagram](assets/pillow-workflow.html) is also available.
 
-1. **Intake:** Pillow reads the request in whatever form it arrives, fetches an issue or work item through `gh` or `az` when the Git remote says which host it is, and reads the repository's own rules so workers inherit them.
-2. **Plan:** It interviews you one question at a time with a recommended answer, then slices the work into tracer-bullet tickets with blocking edges. Each ticket is the complete spec a worker receives: what to build, ownership, constraints, acceptance.
-3. **Contract:** It asks the Git question every run — `L0` no commits, `L1` one local commit per reviewed ticket, `L2` push, `L3` draft PR — plus the deadline, the usage figure and the stop line it implies. Preflight runs the verify commands on the baseline and reports; it changes nothing. You approve before leaving.
-4. **Night loop:** The main session stays a thin coordinator. A budget gate runs before every dispatch, keeping a 15-point reserve for the coordinator. Each ticket goes to a maker subagent, then to a fresh reviewer subagent that runs the build and tests itself and cites `file:line` for every finding.
-5. **Anti-spiral:** A failed review gets a brand-new maker with only the findings, at most twice. A finding that repeats, or acceptance lines that cannot all be true, parks the ticket with the question for you — the attempt is saved as a patch, never looped on.
-6. **Handoff and morning:** When quota or the deadline closes the gate, Pillow writes a handoff and waits for the reset if the agent can, or stops with resume instructions. The morning report fits on one screen: verified done, waiting for you, failed with patches, not started, and the first thing to do.
+1. **Read requirements.** Accept a prompt, file, issue, or work item, and read the repository rules that apply to the work.
+2. **Define tickets.** Clarify scope with you and divide the request into small, independently verifiable changes. Each ticket specifies the behavior to implement, permitted files, constraints, dependencies, and acceptance criteria.
+3. **Approve the run.** Record the tickets, Git permissions, deadline, usage budget, model choices, and decisions that require your input. Run baseline verification and check tool access before you leave. The host must remain awake and online for unattended execution.
+4. **Implement and review.** Assign each ticket to an implementation subagent, then a separate reviewer that runs verification itself. Recheck the combined result before marking a ticket complete or pushing changes.
+5. **Handle failures.** Allow at most two correction rounds with new implementation and review subagents. Defer unresolved decisions or repeated failures, save a recoverable attempt, and restore the pre-ticket state while preserving earlier accepted work.
+6. **Save progress and report.** Record completed work, decisions awaiting your input, failures, and tickets not started. On resume, reconcile saved state with the actual files and commit history before continuing.
+
+### Git permissions
+
+Choose a level for each new run:
+
+| Level | Authorized actions |
+| --- | --- |
+| `L0` | Leave reviewed changes in the working folder without commits; execute tickets sequentially |
+| `L1` | Create local commits for reviewed tickets |
+| `L2` | `L1` plus push the approved branch |
+| `L3` | `L2` plus open a draft pull request |
+
+Pillow does not merge pull requests, force-push, or change issue and work-item states. Run approval records the scope and permissions that apply while you are away.
+
+### Quota and resume
+
+Pillow checks quota before starting work and tracks a per-run usage cap against an agreed quota window. Quota resets do not replenish that cap. When a usage tool is available, Pillow refreshes its readings; otherwise it starts from figures you provide and estimates subsequent consumption.
+
+Automatic continuation after a quota reset requires a scheduling capability in the host environment, a reset before the approved deadline, and remaining run budget. If automatic continuation is unavailable, Pillow saves a handoff; eligible runs can be resumed manually using the commands above. Reaching the deadline or usage cap ends the run.
+
+The [routing policy](skills/pillow/references/routing.md) defines quota thresholds and reset accounting. The [run log reference](skills/pillow/references/runlog.md) describes handoff and report files.
 
 Example request:
 
 ```text
-/pillow Port these four jobs, one commit each. I'm back at 8am.
+/pillow Add slugify(text) and a CLI command that uses it, with tests for both. Use L1 with no push. Stop by 08:00 tomorrow and defer any change to existing CLI output for my review.
 ```
 
-Pillow has no Orca dependency, no second-provider requirement and no fixed model ids. Workers are subagents of the agent you are already running, so a machine with only Claude or only Codex works. Usage numbers you state win over any tool reading; unknown usage is never guessed.
+Pillow will confirm the remaining run details before starting. For the full procedure, see the [Pillow skill](skills/pillow/SKILL.md).
+
+## Acknowledgements
+
+Pillow's requirements interview and ticket-planning workflow were inspired by Matt Pocock's [grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) and [to-tickets](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets) skills.
