@@ -7,6 +7,8 @@ These three files are the coordinator's memory. The conversation is not: it gets
 | When | Write |
 |------|-------|
 | run created | contract summary, usage before start, ticket table with empty result columns |
+| permission preflight / recheck | host/session and path scope, coordinator/worker policies and sanitized evidence, ready/blocked/unknown, missing action/path coverage |
+| permission blocked | blocked_permission, ticket/role, sanitized action/command and host reason, returned denial or pending approval, live worker identity, last completed step, saved artifacts and recovery/integration pending |
 | ticket dispatched | ticket, tier/model actually used, working directory, base commit, snapshot/manifest, time |
 | each review round | round number, PASS or the findings in one line each |
 | integration pending | reviewed content manifest, source commit SHA, target work-branch base before integration |
@@ -22,6 +24,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 - Contract: contract.md · Branch: <name> · Git level: L<n>
 - Usage at start: <window> <remaining>% (source) · Cap: <n>%
 - Cap ledger: <window identity/reset boundary> · Last remaining: <n>% · Cumulative spent: <n> points · Source: <measured | estimated; uncertain intervals>
+- Permission preflight: <ready | blocked | unknown> · Current-host evidence: <contract reference> · Blocked actions: <none | sanitized list>
 
 | # | Ticket | Tier (effective) | Round 1 | Round 2 | Round 3 | Status | Commit |
 |---|--------|------------------|---------|---------|---------|--------|--------|
@@ -40,8 +43,10 @@ These three files are the coordinator's memory. The conversation is not: it gets
 
 ```markdown
 # Pillow handoff — <date> <slug>
-- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | cap (<spent>/<cap> points) | deadline | breaker: <rule> | repository changed
+- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | cap (<spent>/<cap> points) | deadline | breaker: <rule> | repository changed | blocked_permission
 - Resume no later than: <deadline>
+- Permission state: <ready | blocked | unknown> · Host/policy evidence: <reference> · Missing capability: <role/action/path | none>
+- Pending approval/live worker: <identity/action | none | unknown> · Recovery/integration: <verified | pending steps and actual saved artifacts>
 
 ## Frontier
 - Done: 01, 02
@@ -51,7 +56,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 - Not started: 06, 07
 
 ## Next steps, in order
-1. Refresh usage; continue only if ≥ 30% remaining and before the deadline
+1. Recheck current-host permissions per permissions.md; retain approved Git level. Refresh usage; continue only if ≥ 30% remaining, cap permits and before the deadline
 2. Review 03 with a fresh reviewer (round 2)
 3. Dispatch 06
 
@@ -59,7 +64,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 contract.md · runlog.md · tickets/03-*.md
 ```
 
-Resume reads this file, the contract and runlog's cap ledger, then reconciles the actual working directory, snapshots, commit history and any pending integration per workers.md before continuing Next steps. It does not re-ask the Git question unless the repository changed from outside. A recorded done ticket is never blindly replayed; cap and deadline stops remain stopped.
+Resume reads this file, the contract and runlog's cap ledger. Recheck permissions per [permissions.md](permissions.md) before dispatch or mutating reconciliation, even on an unchanged repository or an old contract without permission fields. Read-only reconciliation may proceed where allowed. Reconcile live workers, the actual working directory, snapshots, commit history and pending integration per workers.md before continuing Next steps. Do not re-ask the Git question unless the repository changed from outside. A recorded done ticket is never blindly replayed; cap and deadline stops remain stopped.
 
 ## report.md — written last, shown in chat
 
@@ -78,8 +83,8 @@ Time <start>–<end> · Quota waits <count> (<minutes>) · Usage now <remaining>
 |---|--------|--------|----------|
 
 ## Waiting for you
-| # | Question | Options | Recommendation | Unblocks |
-|---|----------|---------|----------------|----------|
+| # | Question or block reason | Evidence / saved attempt / recovery pending | Options | Recommendation | Unblocks |
+|---|--------------------------|---------------------------------------------|---------|----------------|----------|
 
 ## Failed
 | # | Cause (last findings) | Patch |

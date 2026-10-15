@@ -26,6 +26,8 @@ Avoid file paths and code snippets in **What to build**; they go stale. Put path
 
 **Status:** ready | running | review | done | parked | failed | blocked
 
+**Block reason:** none | blocked_permission | <decision or dependency>
+
 **Execution:** <absolute working directory> · Git level: L<n>
 
 **Baseline:** <base commit or none> · Snapshot: <absolute snapshots/NN-before/ path>
@@ -44,6 +46,11 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 - Do not read or print credential files or environment values that look like secrets
 - Routing: <tier → model/effort> — reason
 
+## Permission requirements
+- <role -> required action/exact command form -> paths, including build outputs and this ticket's Result write>
+- Current-host check: <ready | blocked | unknown> · Evidence: <contract permission entry and bounded check results>
+- On host denial: stop, record blocked_permission below and return; do not change permissions or retry through another tool. See <absolute path to permissions.md supplied by coordinator>
+
 ## Acceptance
 - [ ] <verify command> passes
 - [ ] <observable behaviour the reviewer can point to in the diff>
@@ -54,9 +61,10 @@ _(written by the maker; the reviewer never reads it as evidence)_
 - Did:
 - Verified by:
 - Did not do, and why:
+- Block reason: <none | blocked_permission> · Action/command: <sanitized | none> · Host reason/evidence: <sanitized | none> · Last completed step: <step>
 - Needs a human decision: <none | question with options>
 
 ## Review
 _(appended by the coordinator per round)_
-- Round 1: PASS | FAIL — <finding file:line — rule>
+- Round 1: PASS | FAIL | BLOCKED_PERMISSION — <finding file:line or command evidence — rule; permission blocks consume no fix round>
 ```

@@ -32,7 +32,8 @@ Run while the user is still present. A failed item is reported now, not discover
 
 - [ ] Every verify command ran once on the baseline; its output is saved in the run folder so a reviewer can diff existing behaviour byte-for-byte
 - [ ] `gh auth status` or `az account show` succeeds when L3 or tracker intake needs it
-- [ ] Planned commands run without a permission prompt (dry-run one build and one test)
+- [ ] Permission inventory covers each role's actions/commands and all worktree, build, run-folder, Result, snapshot and recovery paths per [permissions.md](permissions.md)
+- [ ] Current-host coordinator and worker policies have evidence of no-prompt rejection, planned action/path coverage and bounded checks; record ready, blocked or unknown. Only ready allows dispatch; a build/test dry-run alone is insufficient
 - [ ] User confirmed the machine will stay awake and online until the deadline — ask; do not change power or sleep settings yourself
 - [ ] Usage source answered, or the user supplied numbers and reset times
 - [ ] Run folder created and, if inside the repo, excluded from Git
@@ -47,6 +48,10 @@ Run while the user is still present. A failed item is reported now, not discover
 - Out of scope tonight: <list>
 - Repository: <path> · Branch: <name> · Tracker: <github | azure-devops | none> (from origin)
 - Git level: L<0-3>
+- Permission host: <provider/version, machine/session reference, working/run-folder path scope; no secrets>
+- Effective policies: coordinator = <approval/sandbox/access scope + evidence>; maker/reviewer = <effective policy + evidence, not assumed inheritance>
+- Required permissions: <role -> action/exact command form -> paths; include worker creation, Result/run-folder writes, snapshots, recovery and Git operations at the approved level>
+- Permission preflight: <ready | blocked | unknown> · Checked at: <time/current session> · Coverage/check evidence: <sanitized references/results> · Missing setup: <action/path and user control | none>
 - Deadline: <time> · No new ticket after: <time>
 - Usage at bedtime: <remaining>% of <window>, resets <time> (source: user-supplied | tool)
 - Cap window: <identity/duration> · Cap: <n> points · Spent: 0 · Initial stop line: <remaining − n>% (reset accounting: routing.md)

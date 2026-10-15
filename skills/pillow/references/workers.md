@@ -1,6 +1,6 @@
 # Workers
 
-Workers are subagents of the same AI as the main session. Pillow does not launch another provider's CLI; a machine may have only one agent installed. Every worker receives a ticket path and a working directory, nothing else, and every worker ends by writing into the ticket and stopping. There is no question channel at night, so a worker that needs a decision records it and finishes.
+Workers are subagents of the same AI as the main session. Pillow does not launch another provider's CLI; a machine may have only one agent installed. Every worker receives a ticket path and a working directory, nothing else, and every worker ends by writing into the ticket and stopping. There is no question channel at night, so a worker that needs a decision records it and finishes. The ticket carries required actions/paths, current-host permission evidence and the absolute permissions.md reference. Before dispatch, verify the worker's effective policy per [permissions.md](permissions.md); do not assume the coordinator's policy is inherited.
 
 ## Maker
 
@@ -10,6 +10,7 @@ Spawn with the strong tier for cross-cutting or investigative tickets, the fast 
 You are implementing one ticket in isolation. Read <ticket path> in full, then the repository instructions it names.
 Work only inside the files listed under Ownership. Do not commit, push, install anything, or change configuration.
 Run every Acceptance command yourself before you finish. If one fails and you cannot make it pass inside Ownership, stop.
+If a tool returns a host permission denial, stop immediately and record Block reason: blocked_permission, the sanitized action/command and host reason, partial work and last completed step in Result. Return this evidence if writing Result is also denied. Do not retry via another tool, request approval, change policy, or restore files with git checkout/restore; the coordinator owns recovery against the saved snapshot.
 If you hit a decision the ticket does not settle, do not guess: finish what is unambiguous and write the question under "Needs a human decision".
 Finish by filling the ## Result section of the ticket: what you did, how you verified it, what you did not do and why, and any question. Then stop.
 ```
@@ -29,11 +30,14 @@ Worktree: <path>. Base: <ref>.
 4. Check the diff against the repository rules the ticket names.
 5. Check the tracked diff, staged changes and newly created files for secrets, tokens and connection strings. Report only the location and kind of secret; never reproduce its value.
 6. If a call-graph or impact tool is available, check whether the touched symbols are used outside Ownership.
+If a read or verification tool returns a host permission denial, stop and return BLOCKED_PERMISSION with the sanitized action/command and host evidence. Do not repair code or request/change permissions. A test assertion failure remains FAIL.
 Return exactly one of:
 PASS
 FAIL
 - <file:line or command/artifact evidence> — <rule or acceptance line> — <what it must be instead>
-A finding needs a rule and evidence: file:line for source changes, or command output / artifact path for checks and non-text changes. A failed command or unreadable baseline is FAIL, never PASS because it has no line number. If you disagree with the ticket's spec itself, say so as a separate "Spec question" rather than a finding.
+BLOCKED_PERMISSION
+- <sanitized action/command and host denial evidence>
+A finding needs a rule and evidence: file:line for source changes, or command output / artifact path for checks and non-text changes. A failed command or unreadable baseline is FAIL unless a host permission denial explains it, in which case use BLOCKED_PERMISSION; never PASS because it has no line number. If you disagree with the ticket's spec itself, say so as a separate "Spec question" rather than a finding.
 ```
 
 ## The review loop, and how it stops
@@ -51,11 +55,15 @@ Review loops spiral when the same maker keeps re-interpreting the same finding. 
 
 Record each round in the ticket's `## Review` and in `runlog.md` as it happens, so rule 4 can be checked and so the morning report can explain what was tried.
 
+`BLOCKED_PERMISSION` bypasses the code-fix loop: park with that block reason and follow permissions.md. Do not dispatch a reviewer for a maker's permission denial or a fix maker for a reviewer's denial.
+
 ## Pre-ticket snapshot and parking
 
 Before the maker writes, save `snapshots/NN-before/` in the coordinator's run folder, outside worker Ownership and outside any ticket worktree. Record the base commit (if Git), the existing paths under Ownership, their bytes and file types/modes, absent paths, and the real Git index state. Include existing untracked files and deletions from earlier L0 tickets. Keep a working-tree path/status inventory and content fingerprints for existing project files outside Ownership, excluding credentials, the run folder and ignored build outputs, so the reviewer can detect new writes without blaming earlier L0 changes. A snapshot must be recoverable without a commit; if it cannot be captured, do not dispatch.
 
 On park or final FAIL:
+
+Confirm the worker has stopped before changing its files. If any archive, restore or recovery check is denied, preserve the live attempt and snapshots, stop dispatch, and record recovery pending per permissions.md. Never replace snapshot recovery with `git checkout -- <path>` or `git restore <path>` against HEAD; that can discard pre-existing changes.
 
 1. Save `patches/NN-roundK.patch` for tracked text and binary changes relative to that snapshot, plus an archive/manifest containing new or untracked files and any content the patch cannot represent. An ordinary `git diff` omits untracked files. Verify the saved attempt can reconstruct the changed files in a temporary directory before restoring anything.
 2. Restore only the current ticket's changes from `snapshots/NN-before/`, including deleted files and the original index state. Remove only exact paths proven to have been created by this ticket, after archiving them. Do not use a broad clean/reset or restore the shared L0 folder to HEAD. A changed path outside Ownership or an unexplained external edit trips the circuit breaker; preserve it and hand off instead of overwriting it.

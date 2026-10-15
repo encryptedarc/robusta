@@ -115,6 +115,25 @@ GitHub issue access and draft pull requests require an authenticated `gh` CLI. A
 
 Optional model configuration belongs in `~/.pillow/models.md`, which maps the `fast` and `strong` tiers to model IDs and effort settings. Without that file, Pillow uses the agent's configured defaults. Model choices are confirmed as part of run approval; see the [model and budget policy](skills/pillow/references/routing.md).
 
+### Unattended permissions on each machine
+
+Pillow is a skill, not a permission manager. Git levels authorize work but do not approve shell commands. Before first dispatch and every resume, Pillow requires current-host evidence that coordinator and workers reject unapproved actions without waiting for a person, plus permission coverage for the planned commands and paths. A successful build/test or `acceptEdits` alone is insufficient.
+
+For Claude Code, configure narrowly scoped allow rules through `/permissions` and use a host-supported no-prompt rejection policy such as `dontAsk`; check the actual worker policies too. For Codex, check the effective approval policy and sandbox/path access through the installed host's controls. Permission and command syntax vary by host/version: Pillow reports missing setup for you to configure and never changes settings, hooks or credentials itself. See [permission preflight and recovery](skills/pillow/references/permissions.md) for the evidence required.
+
+For CLI hosts that advertise these flags in `--help`, start the session yourself from the intended project folder, then invoke Pillow:
+
+| Host | Example session command |
+| --- | --- |
+| Claude Code | `claude --permission-mode dontAsk` (configure the required narrow allow rules first) |
+| Codex | `codex --sandbox workspace-write --ask-for-approval never` |
+
+These commands select rejection rather than human prompts; they do not grant missing command/path access. Desktop and remote hosts may expose different controls. See [Claude Code permissions](https://code.claude.com/docs/en/permissions) and [Codex sandboxing and approvals](https://learn.chatgpt.com/docs/sandboxing).
+
+Returned permission denials park the ticket with `blocked_permission` without a code-fix round. Independent work continues only after verified recovery and its own permission gate. If recovery or integration is blocked, Pillow preserves the attempt and stops dispatch. A pending host approval dialog can still block a live worker; skill text cannot dismiss it. On another machine, permission readiness is checked again while retaining the approved scope and Git level.
+
+These changes apply when the updated plugin is loaded in a new session. Existing sessions and older installed copies do not gain new instructions automatically; publish and update the plugin through your host's plugin manager before using it on other machines.
+
 ## How Pillow works
 
 ```mermaid
@@ -122,7 +141,7 @@ flowchart LR
     U[User request] --> I[Read requirements and repository rules]
     I --> P[Define tickets with you]
     P --> C[Approve scope, Git permissions, deadline, and budget]
-    C --> G[Check quota and run limits]
+    C --> G[Check permissions, quota and run limits]
     G --> M[Implementation subagent]
     M --> R[Reviewer subagent]
     R --> X[Integrate, verify, run log]
