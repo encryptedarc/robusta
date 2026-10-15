@@ -4,25 +4,75 @@
 
 # Robusta
 
-Robusta provides agent skills for coordinating engineering work with Claude Code and Codex. The skills run within your agent session and use its available tools and permissions.
+Robusta is an installable plugin that bundles Drip and Pillow for coordinating engineering work with Claude Code and Codex. The skills run within your agent session and use its available tools and permissions.
 
 | Skill | Purpose | Requirements |
 | --- | --- | --- |
-| [Drip](#install-drip) | Coordinate supervised work across Claude and Codex workers, selecting a provider based on available quota | Orca Desktop, its CLI, and at least one supported agent CLI |
-| [Pillow](#install-pillow) | Execute an approved work queue while you are away, with separate implementation and review steps | Claude Code or Codex with subagent and shell support |
+| [Drip](#drip-requirements) | Coordinate supervised work across Claude and Codex workers, selecting a provider based on available quota | Orca Desktop, its CLI, and at least one supported agent CLI |
+| [Pillow](#pillow-requirements) | Execute an approved work queue while you are away, with separate implementation and review steps | Claude Code or Codex with subagent and shell support |
 
-## Install Drip
+## Install
+
+Install `robusta` once to get both skills. The commands below use the marketplace published from this repository; the plugin manifests and catalogs must be pushed to GitHub before remote installation works.
+
+### Claude Code
+
+Run inside Claude Code:
+
+```text
+/plugin marketplace add encryptedarc/robusta
+/plugin install robusta@robusta
+```
+
+Or run from a terminal:
+
+```sh
+claude plugin marketplace add encryptedarc/robusta
+claude plugin install robusta@robusta
+```
+
+### Codex
+
+Run from a terminal with a Codex CLI that provides `codex plugin`:
+
+```sh
+codex plugin marketplace add encryptedarc/robusta
+codex plugin add robusta@robusta
+```
+
+In Codex Desktop, the registered marketplace is also available in the plugin browser. Start a new session after installation; restart the desktop app if the marketplace is not shown.
+
+### Invoke the skills
+
+| Agent | Drip | Pillow | Resume Pillow |
+| --- | --- | --- | --- |
+| Claude Code | `/robusta:drip <task>` | `/robusta:pillow <task>` | `/robusta:pillow resume <run-folder>` |
+| Codex | `$drip <task>` | `$pillow <task>` | `$pillow resume <run-folder>` |
+
+If you previously copied these skills into your agent's skills directory, remove the old copies after verifying the plugin installation to avoid loading duplicate skills. For plugin installations, use the invocation above wherever a skill's instructions show the standalone `/pillow` shorthand.
+
+### Test from a local checkout
+
+From the repository root, use a local marketplace instead of GitHub:
+
+```sh
+claude plugin validate .
+claude plugin marketplace add .
+claude plugin install robusta@robusta
+```
+
+```sh
+codex plugin marketplace add .
+codex plugin add robusta@robusta
+```
+
+Use either the local or GitHub source for the `robusta` marketplace in each agent. Local installation is useful for testing changes before pushing them.
+
+The [Claude Code marketplace guide](https://code.claude.com/docs/en/plugin-marketplaces) and [OpenAI plugin packaging guide](https://developers.openai.com/plugins/build/plugins) describe the supported layouts. Both manifests load the same `skills/` directory, including each skill's reference files.
+
+## Drip requirements
 
 You need Orca Desktop with orchestration enabled, its CLI available, and at least one Claude Code or Codex CLI that Orca can launch.
-
-Copy the complete [`skills/drip`](skills/drip) directory into the coordinating agent's skills directory:
-
-| Agent | Destination | Invocation |
-| --- | --- | --- |
-| Claude Code | `~/.claude/skills/drip/` | `/drip <task>` |
-| Codex | `~/.codex/skills/drip/` | `$drip <task>` |
-
-The installed path must be `~/.claude/skills/drip/SKILL.md` or `~/.codex/skills/drip/SKILL.md`. If the skill is not listed after copying, start a new agent session.
 
 Drip reads the installed Orca CLI's coordination guide at the start of each run. With the standard `orca` executable, you can inspect that guide using `orca skills get orchestration`. For quota data, Drip uses `orca account list --json` when the installed CLI supports it; otherwise it needs another trustworthy source or figures you provide.
 
@@ -52,25 +102,16 @@ flowchart LR
 Example request:
 
 ```text
-/drip Add CSV export to the orders page. Split independent work across available workers, verify the results, and report blockers before integration.
+/robusta:drip Add CSV export to the orders page. Split independent work across available workers, verify the results, and report blockers before integration.
 ```
 
 For detailed instructions, see the [Drip skill](skills/drip/SKILL.md) and [quota routing policy](skills/drip/references/usage-routing.md).
 
-## Install Pillow
+## Pillow requirements
 
 You need Claude Code or Codex with permission to create subagents and run shell commands. Pillow uses subagents from the same provider as the coordinating session. Git is required for commits, pushes, and pull requests; a plain folder is supported at level `L0`.
 
 GitHub issue access and draft pull requests require an authenticated `gh` CLI. Azure DevOps work items and draft pull requests require an authenticated `az` CLI with the relevant commands available.
-
-Copy the complete [`skills/pillow`](skills/pillow) directory to your agent's skill directory:
-
-| Agent | Destination | Invocation |
-| --- | --- | --- |
-| Claude Code | `~/.claude/skills/pillow/` | `/pillow <task>` · `/pillow resume <run-folder>` |
-| Codex | `~/.codex/skills/pillow/` | `$pillow <task>` · `$pillow resume <run-folder>` |
-
-The installed path must be `~/.claude/skills/pillow/SKILL.md` or `~/.codex/skills/pillow/SKILL.md`. If the skill is not listed after copying, start a new agent session.
 
 Optional model configuration belongs in `~/.pillow/models.md`, which maps the `fast` and `strong` tiers to model IDs and effort settings. Without that file, Pillow uses the agent's configured defaults. Model choices are confirmed as part of run approval; see the [model and budget policy](skills/pillow/references/routing.md).
 
@@ -127,7 +168,7 @@ The [routing policy](skills/pillow/references/routing.md) defines quota threshol
 Example request:
 
 ```text
-/pillow Add slugify(text) and a CLI command that uses it, with tests for both. Use L1 with no push. Stop by 08:00 tomorrow and defer any change to existing CLI output for my review.
+/robusta:pillow Add slugify(text) and a CLI command that uses it, with tests for both. Use L1 with no push. Stop by 08:00 tomorrow and defer any change to existing CLI output for my review.
 ```
 
 Pillow will confirm the remaining run details before starting. For the full procedure, see the [Pillow skill](skills/pillow/SKILL.md).

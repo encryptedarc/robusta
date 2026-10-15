@@ -1,0 +1,20 @@
+{
+  "name": "robusta",
+  "interface": {
+    "displayName": "Robusta"
+  },
+  "plugins": [
+    {
+      "name": "robusta",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

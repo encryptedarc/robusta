@@ -1,0 +1,11 @@
+{
+  "name": "robusta",
+  "version": "0.1.0",
+  "description": "Drip and Pillow skills for supervised and unattended engineering work with Claude Code and Codex.",
+  "author": {
+    "name": "Encrypted Arc"
+  },
+  "repository": "https://github.com/encryptedarc/robusta",
+  "keywords": ["orchestration", "engineering", "drip", "pillow"],
+  "skills": "./skills/"
+}
