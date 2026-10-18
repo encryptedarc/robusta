@@ -12,6 +12,7 @@ Scope
 Risk
 - Which tickets are high-risk: production data, sending anything, money, security controls, schema or data migrations, deletions, large ports with unclear behaviour? These are parked unless the user approves each by name.
 - For each ticket, what is the verify command or check that proves it works without a human looking?
+- What is the whole-run review target/base and scope? For an existing branch/PR resolve its comparison base; for L0/plain folders save the run-start manifest. Reserve time/usage for the final reviewer inside the existing cap/deadline.
 
 Decisions Pillow may make alone
 - Which kinds of choices are implementation detail (free) and which need the user (park)? Examples: naming, file placement, library already in use = free; new dependency, API contract change, behaviour the spec leaves open = park.
@@ -37,6 +38,7 @@ Run while the user is still present. A failed item is reported now, not discover
 - [ ] User confirmed the machine will stay awake and online until the deadline — ask; do not change power or sleep settings yourself
 - [ ] Usage source answered, or the user supplied numbers and reset times
 - [ ] Run folder created and, if inside the repo, excluded from Git
+- [ ] Whole-run review base/scope and run-start baseline are saved, including existing user changes; approved decisions have affected-path coverage per [tickets.md](tickets.md)
 
 ## contract.md template
 
@@ -61,6 +63,10 @@ Run while the user is still present. A failed item is reported now, not discover
 - High-risk tickets approved by name: <ids or none>
 - Verify commands: <commands>
 - Baseline results: <command → result>
+- Skill loaded: <actual installation path and version/revision or content fingerprint; do not infer from another copy>
+- Whole-run review: scope = <approved branch/PR/run paths>; target/base = <resolved SHAs | plain folder>; run-start snapshot = <path/manifest, including user-owned state>
+- Final review allowance: <time/usage estimate within this cap/deadline; reviewer uses the approved strong tier>
+- Decisions: <runlog register reference; each answer has affected-path coverage in its tickets>
 
 ## Tickets (approved)
 | # | Title | Blocked by | Risk |

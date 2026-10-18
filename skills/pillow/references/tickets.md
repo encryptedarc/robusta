@@ -13,6 +13,20 @@ A ticket is the single artifact a worker receives. It must stand alone: a fresh 
 
 Avoid file paths and code snippets in **What to build**; they go stale. Put paths only in **Ownership**, where they are a contract, and verify each one exists before writing it.
 
+## Decisions and coverage
+
+The coordinator owns the decision register in runlog.md. Before accepting a ticket, copy **every** maker "Needs a human decision" and reviewer "Spec question" into it with a stable ID, source, question/options, affected tickets and status. Keep the original question and history. A reviewer PASS or recommended workaround does not resolve it. Resolve only with a user answer or an exact already-approved contract/decision reference that actually settles that question; retain the authority and resolution instead of asking again. An unsupported interpretation stays open in Waiting for you and parks the ticket/dependents under the existing recovery rules. Reviewers still ignore Result as evidence of code correctness; the coordinator extracts question metadata separately.
+
+For each user answer, map the affected paths before dispatch: explicit/absent/null/empty inputs, existing/missing data, create/update/read and user scope where relevant. Record expected behavior or N/A with a reason, plus the owning ticket and authority for each row. If the answer illustrated one path but might change an earlier "legacy/create unchanged" decision, record the conflict and ask the user before amending scope; do not silently limit the answer to the illustrated path or extend it to others.
+
+Once resolved, put the approved rule and coverage in **every** affected ticket, including done tickets. Retire affected review evidence to history, mark re-verification pending and hold dependent work until it passes; preserve existing accepted commits/files and use a bounded follow-up ticket for any new edits. Do not undo integrated work merely because its spec changed. Fresh makers receive approved decisions in the ticket, never a conversation transcript.
+
+## Source evidence and conditional write-order checks
+
+Briefs describe behavior from the actual implementation with source/command evidence, not memory. An accepted exception names its finding ID, exact behavior/location, evidence and user/contract authority; it suppresses only that issue, never a category or neighboring code.
+
+Only when a ticket moves a write or other side effect, record the before/after operation order, every remaining validation/return/throw/catch path after each write, and expected persistent state on rejection. Trace called helpers and all affected item/input subsets. Unsettled failure behavior is a Spec question; do not invent transactions or rollback requirements.
+
 ## Ticket template — `tickets/NN-<slug>.md`
 
 ```markdown
@@ -34,6 +48,8 @@ Avoid file paths and code snippets in **What to build**; they go stale. Put path
 
 **Integration:** <pending | source SHA → integrated SHA | L0 accepted manifest path>
 
+**Decision coverage:** <decision IDs + approved rule/authority and affected-path rows | none with reason> · Unresolved: <IDs | none> · Review validity: <pending | current for this spec/candidate>
+
 ## Ownership
 Files and folders this worker may create or edit. Everything else is read-only, except that the maker fills only the Result section of this assigned ticket; the coordinator owns its baseline, acceptance and integration fields.
 - <path>
@@ -45,6 +61,12 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 - Do not commit, push, install dependencies, or change configuration
 - Do not read or print credential files or environment values that look like secrets
 - Routing: <tier → model/effort> — reason
+- Source evidence / accepted exceptions: <source or command references; exact finding ID/scope/authority | none>
+
+## Write-order analysis (only when moving side effects)
+- Before → after: <operations and helper calls>
+- Failure paths after each write: <validation/return/throw/catch, all affected item/input subsets, source evidence>
+- State on rejection: <approved expectation and authority | unresolved decision ID>
 
 ## Permission requirements
 - <role -> required action/exact command form -> paths, including build outputs and this ticket's Result write>
@@ -55,6 +77,7 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 - [ ] <verify command> passes
 - [ ] <observable behaviour the reviewer can point to in the diff>
 - [ ] Result section below is filled in
+- [ ] Approved decision coverage is satisfied; coordinator records all questions and their authority/status separately
 
 ## Result
 _(written by the maker; the reviewer never reads it as evidence)_

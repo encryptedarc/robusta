@@ -35,10 +35,10 @@ For example, 70% → 45% spends 25 points; after reset the first reading is 92%,
 | Lowest remaining | Action |
 |------------------|--------|
 | ≥ 30% | dispatch sequentially at 30–40%; above 40% independent L1–L3 tickets may run in parallel; L0 stays sequential |
-| ≥ 15% and < 30% | run no new maker; finish reviews and integrations already in flight, then hand off; if none are in flight, hand off now |
+| ≥ 15% and < 30% | run no new maker; finish reviews/integrations, including the required whole-run review of accepted work if the remaining reserve, cap and time can cover it; otherwise hand off |
 | < 15%, limit reached, or unknown | stop dispatching; go to handoff |
 | per-run cap reached (default 40 points of the contract's cap window) | end the run; a quota reset does not replenish this cap |
 
-The 15-point reserve exists because the coordinator still has to review, merge and write the report after the last maker finishes. A night that spends everything on makers ends with work nobody can account for.
+The 15-point reserve exists because the coordinator still has to finish ticket and whole-run reviews, integrate and write the report after the last maker finishes. Budget the final reviewer before spending the last maker allowance. The reserve permits no new correction maker below 30%, and never extends the cap/deadline or overrides the below-15% stop. A night that spends everything on makers ends with work nobody can account for.
 
 A worker that dies mid-ticket loses what it spent; the gate is cheaper than the retry. Persist the ledger before handoff and load it on resume. For a quota wait, use the reset of the window actually blocking dispatch. Schedule a wake only if that reset is before the deadline and the run cap still permits work; otherwise write the final report with remaining tickets not started. Recheck every window after waking. A cap or deadline stop cannot auto-resume within this contract.

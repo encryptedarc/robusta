@@ -2,6 +2,114 @@
   "skill_name": "pillow",
   "evals": [
     {
+      "id": 18,
+      "name": "human-question-survives-review-pass",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. A. Ticket 14 maker Result asks: \"A partial-scope editor cannot disable the integration when live branches exist outside their access. Confirm this is intended?\" The fresh reviewer returns PASS and recommends \"the user can list all live branches themselves\". Build passes and an independent ticket 15 is ready. What happens before integration and what is retained?",
+      "expected_output": "Every maker question is retained with a stable decision ID and linked authority or unresolved status. Reviewer PASS and workaround are not user authorization; unresolved decision parks ticket 14 before integration. Independent 15 requires verified recovery and its own gates; reviewer still verifies code independently of maker Result.",
+      "files": [],
+      "assertions": [
+        "Every maker question is retained with a stable decision ID and linked authority or unresolved status",
+        "Reviewer PASS and workaround are not user authorization; unresolved decision parks ticket 14 before integration",
+        "Independent 15 requires verified recovery and its own gates; reviewer still verifies code independently of maker Result"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "human-question-already-answered",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. B. In a separate run the maker asks whether the API response should use null or [] when a document is missing. Contract decision C2 explicitly says \"missing document returns null for both detail and list\" and user approved it. Reviewer verifies that behavior and PASS. What happens to the question and integration?",
+      "expected_output": "Resolve with exact approved C2 authority without redundant questioning. Retain question and resolution in decision record; integration follows actual PASS and ordinary gates.",
+      "files": [],
+      "assertions": [
+        "Resolve with exact approved C2 authority without redundant questioning",
+        "Retain question and resolution in decision record; integration follows actual PASS and ordinary gates"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "decision-fanout-conflicts-with-legacy-scope",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. C. Contract C1 says absent branchIds retains legacy behavior; create unchanged. A later user answer is \"reject removing a branch while still live\" to a question illustrated with explicit branchIds. Ticket 14 covers explicit update only; ticket 12 (done) owns legacy prune. What do you write and dispatch next?",
+      "expected_output": "Inventory explicit/absent/null/empty, existing/missing data and relevant create/update/read/scope paths with behavior or N/A reason. Identify conflict with C1/create unchanged and seek user clarification before changing approved spec. After approval propagate the answer to all affected tickets including done 12, invalidate affected reviews and block dependents until verified.",
+      "files": [],
+      "assertions": [
+        "Inventory explicit/absent/null/empty, existing/missing data and relevant create/update/read/scope paths with behavior or N/A reason",
+        "Identify conflict with C1/create unchanged and seek user clarification before changing approved spec",
+        "After approval propagate the answer to all affected tickets including done 12, invalidate affected reviews and block dependents until verified"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "whole-run-review-catches-ticket-boundary",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. D. Queue empty, all per-ticket reviewers PASS, combined build/tests PASS. Ticket 03 GET encodes a missing integration document as []; ticket 12 UPDATE rejects [] when enabled. Each ticket's own Acceptance permits its behavior and no cross-ticket test exists. No reviewer has examined the combined behavioral diff. What is the next action and completion claim?",
+      "expected_output": "Queue empty and combined build/test are not whole-run review evidence. Dispatch fresh same-provider whole-run reviewer on fixed base and current candidate, including GET-to-UPDATE interaction outside per-ticket Ownership. If an approved rule establishes the required round-trip behavior, record a code finding with evidence and route bounded correction tickets. Otherwise record an unresolved Spec question and wait for user authority before dispatching corrections. Do not claim whole-run verified.",
+      "files": [],
+      "assertions": [
+        "Queue empty and combined build/test are not whole-run review evidence",
+        "Dispatch fresh same-provider whole-run reviewer on fixed base and current candidate, including GET-to-UPDATE interaction outside per-ticket Ownership",
+        "Record a code finding and bounded corrections only with an approved rule; otherwise preserve the unresolved Spec question and wait for user authority, without a whole-run verified claim"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "final-review-candidate-changed-on-resume",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. E. A saved whole-run reviewer PASS covers base M and candidate A. A subsequent approved ticket changed code to candidate B; build/tests pass. On resume the runlog still says final PASS A. In a separate L0 run the HEAD is unchanged but accepted working files differ from the bytes previously reviewed. What evidence and next action are needed in each?",
+      "expected_output": "Final PASS A is invalid for candidate B even when tests pass. L0 HEAD equality does not prove identical accepted bytes; compare saved content/index/manifest evidence. Reconcile base, candidate, approved decision/spec evidence and actual files before reusing final PASS; mismatches return final state to pending.",
+      "files": [],
+      "assertions": [
+        "Final PASS A is invalid for candidate B even when tests pass",
+        "L0 HEAD equality does not prove identical accepted bytes; compare saved content/index/manifest evidence",
+        "Reconcile base, candidate, approved decision/spec evidence and actual files before reusing final PASS; mismatches return final state to pending"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "l0-and-plain-folder-final-review",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. F. L0 run started with user-owned uncommitted config and an untracked file. Two accepted tickets added unstaged text, staged binary changes, a deletion and an untracked source file. Queue empty and cumulative tests PASS. There is a run-start snapshot and each pre-ticket snapshot. Another run is a plain folder with the same kinds of changes and manifests but no Git. How do you establish whole-run review scope and completion in both?",
+      "expected_output": "Review cumulative run-owned changes from run-start snapshot, distinguish preexisting user state, include staged/untracked/deleted/binary changes. Plain folder uses byte/type/existence manifests rather than HEAD or commit diff. No commit, reset-to-HEAD or loss of prior accepted/user work to enable final review.",
+      "files": [],
+      "assertions": [
+        "Review cumulative run-owned changes from run-start snapshot, distinguish preexisting user state, include staged/untracked/deleted/binary changes",
+        "Plain folder uses byte/type/existence manifests rather than HEAD or commit diff",
+        "No commit, reset-to-HEAD or loss of prior accepted/user work to enable final review"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "reviewer-premise-and-narrow-exception",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. G. Reviewer brief says endpoint get_branches is campaign-filtered; actual endpoint has only a brand token and returns active brand branches with stores. An accepted exception E1 covers one documented concurrent update race. Near that race a new ordering change can persist a document before a reject. What do you report, read and suppress?",
+      "expected_output": "Verify endpoint premise from actual code; contradictory spec opens Spec question rather than a fabricated campaign-filter finding. Accepted exception E1 suppresses only the exact approved race with evidence and authority. Review nearby independent ordering defect and read helpers/callers beyond editable Ownership as needed.",
+      "files": [],
+      "assertions": [
+        "Verify endpoint premise from actual code; contradictory spec opens Spec question rather than a fabricated campaign-filter finding",
+        "Accepted exception E1 suppresses only the exact approved race with evidence and authority",
+        "Review nearby independent ordering defect and read helpers/callers beyond editable Ownership as needed"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "write-order-failure-paths",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. H. A proposed fix moves the Mongo write before helper Sync(). Sync rejects invalid prices for every item, including items with no BranchIds; its catch path also returns a rejection after a later failure. The proposed pre-check examines only items with BranchIds. Ticket Acceptance says \"write happens before Sync\". How do you implement/review this ticket and what evidence belongs in it?",
+      "expected_output": "Ticket records operation order, remaining helper validation/catch/failure paths and persistent state on rejection. Reviewer catches BranchIds-only pre-check omitting other validated items. Unsettled atomicity/scope opens human decision; no invented transaction/rollback or coordinator code fix.",
+      "files": [],
+      "assertions": [
+        "Ticket records operation order, remaining helper validation/catch/failure paths and persistent state on rejection",
+        "Reviewer catches BranchIds-only pre-check omitting other validated items",
+        "Unsettled atomicity/scope opens human decision; no invented transaction/rollback or coordinator code fix"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "final-review-budget-permission-and-deadline",
+      "prompt": "Read the installed Pillow skill and relevant references; simulate only, without modifying actual files or host settings. Supplied fixture: one provider installed, approved L1 unless overridden; current-host no-prompt permission readiness and action/path coverage for coordinator/maker/reviewer and snapshot recovery verified; 65% quota, cap/time available unless overridden. User offline unless quoted. Contract delegates naming/file placement/message wording, reserves undecided API/user-scope behavior. State concrete next actions and artifact entries; distinguish requirements from judgment. I. Queue empty, individual tickets accepted and source commits saved, but no whole-run review yet. Consider separately: lowest quota 22% with enough cap/time; quota 12%; deadline has passed; final review read denied by host. How do you report each state and decide the next action without changing permissions or budget?",
+      "expected_output": "22% permits needed final review under existing reserve/cap/deadline policy, never a new maker below threshold. 12% and passed deadline stop dispatch and report final review pending/blocked while retaining accepted tickets. Host denial records blocked_permission and retained evidence without fix round or permission change. No whole-run verified claim from accepted-ticket count, no automatic publishing or draft-to-ready transition.",
+      "files": [],
+      "assertions": [
+        "22% permits needed final review under existing reserve/cap/deadline policy, never a new maker below threshold",
+        "12% and passed deadline stop dispatch and report final review pending/blocked while retaining accepted tickets",
+        "Host denial records blocked_permission and retained evidence without fix round or permission change",
+        "No whole-run verified claim from accepted-ticket count, no automatic publishing or draft-to-ready transition"
+      ]
+    },
+    {
       "id": 17,
       "name": "permission-resume-refreshes-installed-skill-reference",
       "prompt": "Simulate Pillow resume after all current-host permission, budget and deadline gates pass on computer B. Approved L1 scope is unchanged. Ticket permission reference still names computer A's plugin cache root/version; B has loaded this skill from a different existing installation. The actual worktree and snapshot artifacts have been located and verified on B. Give the ticket updates and next action before dispatch. Do not copy settings, rewrite Ownership/Acceptance or infer that A's absolute paths exist on B.",

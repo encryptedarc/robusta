@@ -5112,8 +5112,8 @@
         <text data-detail="fine" x="482.6" y="142" class="t-security" font-size="7" text-anchor="middle">user approves</text>
         </g>
 
-        <g id="node-report" data-node-id="report" data-node-label="Morning report" tabindex="0" role="button" aria-label="Focus Morning report, done, waiting, failed, next, With the user › Morning" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="done, waiting, failed, next" data-node-context="With the user › Morning">
-          <title>Morning report · done, waiting, failed, next · With the user › Morning</title>
+        <g id="node-report" data-node-id="report" data-node-label="Morning report" tabindex="0" role="button" aria-label="Focus Morning report, current final review verdict, With the user › Morning" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="current final review verdict" data-node-context="With the user › Morning">
+          <title>Morning report · current final review verdict · With the user › Morning</title>
           <rect x="877.6" y="94" width="150" height="52" rx="6" class="c-mask"/>
           <rect x="877.6" y="94" width="150" height="52" rx="6" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(883.6 100) scale(0.6875)">
@@ -5123,7 +5123,7 @@
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="952.6" y="115" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Morning report</text>
-          <text data-detail="context" x="952.6" y="132" class="t-muted" font-size="8" text-anchor="middle">done, waiting, failed, next</text>
+          <text data-detail="context" x="952.6" y="132" class="t-muted" font-size="8" text-anchor="middle">current final review verdict</text>
         </g>
 
         <g id="node-gate" data-node-id="gate" data-node-label="Budget gate" tabindex="0" role="button" aria-label="Focus Budget gate, quota, deadline, frontier, Main session (thin coordinator) › Unattended night" aria-pressed="false" data-node-kind="security" data-node-sublabel="quota, deadline, frontier" data-node-context="Main session (thin coordinator) › Unattended night">
@@ -5466,7 +5466,7 @@
         </div>
         <ul>
           <li>&bull; Git level L0 to L3, asked every run</li>
-          <li>&bull; Tracker from git remote, deadline, quota cap</li>
+          <li>&bull; Review base, deadline, quota cap and final-review allowance</li>
         </ul>
       </div>
 
@@ -5476,8 +5476,10 @@
           <h3>Night loop</h3>
         </div>
         <ul>
-          <li>&bull; Ticket is the spec a worker receives</li>
-          <li>&bull; Reviewer runs build and tests itself</li>
+          <li>&bull; Ticket carries approved decisions across affected paths</li>
+          <li>&bull; Open human questions block integration, even after code PASS</li>
+          <li>&bull; A fresh reviewer checks the full candidate before whole-goal completion</li>
+          <li>&bull; Report final review pending if permission, time or quota blocks it</li>
         </ul>
       </div>
 
