@@ -1,6 +1,6 @@
 {
   "name": "robusta",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drip and Pillow skills for supervised and unattended engineering work with Claude Code and Codex.",
   "author": {
     "name": "Encrypted Arc"
