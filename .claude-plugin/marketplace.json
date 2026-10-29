@@ -1,6 +1,6 @@
 {
   "name": "robusta",
-  "description": "Robusta plugins for supervised and unattended engineering workflows.",
+  "description": "Robusta plugins for engineering workflows and OCR field presentations.",
   "owner": {
     "name": "Encrypted Arc"
   },
@@ -8,7 +8,7 @@
     {
       "name": "robusta",
       "source": "./",
-      "description": "Drip and Pillow skills for supervised and unattended engineering work."
+      "description": "Drip, Pillow, and interactive OCR field presentations."
     }
   ]
 }

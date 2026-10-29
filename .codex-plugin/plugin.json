@@ -1,17 +1,17 @@
 {
   "name": "robusta",
-  "version": "0.1.0",
-  "description": "Drip and Pillow skills for supervised and unattended engineering work with Claude Code and Codex.",
+  "version": "0.2.0",
+  "description": "Drip, Pillow, and interactive OCR field presentations for Claude Code and Codex.",
   "author": {
     "name": "Encrypted Arc"
   },
   "repository": "https://github.com/encryptedarc/robusta",
-  "keywords": ["orchestration", "engineering", "drip", "pillow"],
+  "keywords": ["orchestration", "engineering", "drip", "pillow", "ocr", "presentation"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Robusta",
-    "shortDescription": "Supervised and unattended engineering workflows",
-    "longDescription": "Coordinate Claude and Codex workers through Orca with Drip, or run an approved queue of engineering tickets while you are away with Pillow.",
+    "shortDescription": "Engineering workflows and OCR field presentations",
+    "longDescription": "Coordinate workers through Orca with Drip, run an approved engineering queue with Pillow, or map receipt images to OCR JSON in interactive offline HTML presentations.",
     "developerName": "Encrypted Arc",
     "category": "Developer Tools"
   }

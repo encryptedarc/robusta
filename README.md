@@ -4,16 +4,17 @@
 
 # Robusta
 
-Robusta is an installable plugin that bundles Drip and Pillow for coordinating engineering work with Claude Code and Codex. The skills run within your agent session and use its available tools and permissions.
+Robusta is an installable plugin that bundles Drip, Pillow, and OCR Field Presentation for Claude Code and Codex. Coordinate engineering work or create interactive presentations that map document images to OCR JSON fields. The skills run within your agent session and use its available tools and permissions.
 
 | Skill | Purpose | Requirements |
 | --- | --- | --- |
 | [Drip](#drip-requirements) | Coordinate supervised work across Claude and Codex workers, selecting a provider based on available quota | Orca Desktop, its CLI, and at least one supported agent CLI |
 | [Pillow](#pillow-requirements) | Execute an approved work queue while you are away, with separate implementation and review steps | Claude Code or Codex with subagent and shell support |
+| [OCR Field Presentation](#ocr-field-presentation) | Map receipt or document images to OCR JSON fields in one interactive offline HTML file | Claude Code or Codex with image and shell tools; Node.js |
 
 ## Install
 
-Install `robusta` once to get both skills. The commands below use the marketplace published from this repository; the plugin manifests and catalogs must be pushed to GitHub before remote installation works.
+Install `robusta` once to get all three skills. The commands below use the marketplace published from this repository.
 
 ### Claude Code
 
@@ -44,12 +45,21 @@ In Codex Desktop, the registered marketplace is also available in the plugin bro
 
 ### Invoke the skills
 
-| Agent | Drip | Pillow | Resume Pillow |
-| --- | --- | --- | --- |
-| Claude Code | `/robusta:drip <task>` | `/robusta:pillow <task>` | `/robusta:pillow resume <run-folder>` |
-| Codex | `$drip <task>` | `$pillow <task>` | `$pillow resume <run-folder>` |
+| Agent | Drip | Pillow | Resume Pillow | OCR Field Presentation |
+| --- | --- | --- | --- | --- |
+| Claude Code | `/robusta:drip <task>` | `/robusta:pillow <task>` | `/robusta:pillow resume <run-folder>` | `/robusta:ocr-field-presentation <image/JSON pairs>` |
+| Codex | `$drip <task>` | `$pillow <task>` | `$pillow resume <run-folder>` | `$ocr-field-presentation <image/JSON pairs>` |
 
 If you previously copied these skills into your agent's skills directory, remove the old copies after verifying the plugin installation to avoid loading duplicate skills. For plugin installations, use the invocation above wherever a skill's instructions show the standalone `/pillow` shorthand.
+
+### Update an existing Claude Code installation
+
+```sh
+claude plugin marketplace update robusta
+claude plugin update robusta@robusta
+```
+
+Restart Claude Code after updating to load the new skills.
 
 ### Test from a local checkout
 
@@ -172,6 +182,28 @@ Example request:
 ```
 
 Pillow will confirm the remaining run details before starting. For the full procedure, see the [Pillow skill](skills/pillow/SKILL.md).
+
+## OCR Field Presentation
+
+Attach a receipt image and its OCR JSON, then ask for a presentation:
+
+```text
+/robusta:ocr-field-presentation Create one interactive HTML presentation from all attached image/JSON pairs. Clicking a highlighted region should focus it and show the JSON path and value.
+```
+
+In Codex, use `$ocr-field-presentation` with the same request. For a batch, pair filenames such as `receipt-01.png` / `receipt-01.json` and `receipt-02.png` / `receipt-02.json`, then attach all pairs in one request. JSON pasted into the chat is also supported when you label which image it belongs to.
+
+The generated HTML embeds the images and supplied JSON, so it can be shared as one file and viewed offline. Click a box to spotlight it, show its JSON field and value, and emphasize the matching field row. The selection stays pinned until you choose another field; press Escape to remove the spotlight. Multiple documents have a document picker and previous/next controls. Hover, keyboard selection, and mobile layouts are supported.
+
+The skill preserves the supplied OCR JSON. It distinguishes direct text evidence, transformed values, and inferred values; null or unlocated fields stay visible without invented boxes. When the OCR result has no bounding boxes, the agent places approximate visual annotations and labels them accordingly.
+
+Node.js is required to generate the HTML; there are no npm dependencies. The person opening the completed file only needs a browser. See the [skill instructions](skills/ocr-field-presentation/SKILL.md) and [manifest contract](skills/ocr-field-presentation/references/manifest.md).
+
+To verify the bundled generator from a checkout:
+
+```sh
+node --test skills/ocr-field-presentation/scripts/build.test.mjs
+```
 
 ## Acknowledgements
 

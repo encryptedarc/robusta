@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OCR → JSON</title>
+<style>
+:root{color-scheme:light;--ink:#19332d;--muted:#596a64;--paper:#fff;--ground:#f4f5ef;--line:#d8dfd6;--green:#087f68;--pale:#e4f2e9;--amber:#986013;--amber-pale:#fff2d7;font-family:Tahoma,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--ground);color:var(--ink);font-size:14px;line-height:1.6}button,select{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #173dd6;outline-offset:3px}button{border:1px solid var(--line);border-radius:7px;background:white;padding:7px 13px}button:disabled{opacity:.4;cursor:default}code,pre{font-family:Consolas,monospace}code{overflow-wrap:anywhere}.wrap{max-width:1120px;margin:auto;padding:32px 32px 48px}.topline{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid var(--line);padding-bottom:18px}.eyebrow{letter-spacing:2px;font-size:11px;font-weight:700;color:var(--green)}.stamp{font-size:12px;color:var(--muted)}h1{font-size:clamp(24px,3vw,36px);font-weight:500;letter-spacing:-1px;margin:23px 0 7px;line-height:1.3}.intro{color:var(--muted);margin:0 0 24px}.docbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}.doc-title{font-size:16px;font-weight:700}.doc-count{font-size:12px;color:var(--muted)}.navigation{display:flex;gap:7px;align-items:center}.navigation select{max-width:240px;padding:7px;border:1px solid var(--line);border-radius:7px;background:white}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:44px;align-items:start}.image-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-label{font-size:12px;color:var(--muted);letter-spacing:.4px}.legend{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}.key{display:inline-block;width:9px;height:9px;background:var(--green);margin-right:5px;border-radius:2px}.key.infer{background:var(--amber)}.paper{position:relative;width:min(100%,390px);margin:0 auto;background:#dadbd7;box-shadow:0 12px 36px #20342c15}.photo-clip{position:absolute;inset:0;overflow:hidden}.photo-clip img{position:absolute;max-width:none;display:block}.hotspot{position:absolute;border:1.5px solid #087f6899;background:#087f680d;border-radius:3px;padding:0;min-width:0;min-height:0;z-index:2;transition:background .12s,box-shadow .12s}.hotspot:hover,.hotspot.active{background:#00b88927;border-color:#006650;box-shadow:0 0 0 2px #ffffffb3}.hotspot.mixed{border-color:#986013b3;background:#df9b180b}.hotspot.mixed:hover,.hotspot.mixed.active{background:#df9b182b;border-color:#895005}.hotspot:focus-visible{z-index:4}.tip{position:absolute;max-width:min(340px,calc(100% - 16px));background:#163b31;color:#fff;padding:11px 13px;border-radius:7px;font-size:12px;box-shadow:0 8px 25px #0003;z-index:8;pointer-events:none;overflow-wrap:anywhere}.tip strong{display:block;font-family:Consolas,monospace;font-weight:500}.tip .tip-value{color:#d2efdc}.source-note{font-size:11px;color:var(--muted);margin:14px 0 0}.details{position:sticky;top:20px;min-width:0}.selected{background:white;border:1px solid var(--line);border-radius:12px;padding:21px;margin-bottom:21px}.selected-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}.badge{display:inline-block;font-size:11px;line-height:1.4;padding:4px 8px;border-radius:5px;background:var(--pale);color:#00644d}.badge.inferred,.badge.transformed{background:var(--amber-pale);color:#80500d}.badge.null,.badge.unmapped,.badge.raw{background:#eff0ec;color:#596a64}.selected-path{font-size:16px;display:block}.selected-value{font-size:28px;line-height:1.4;margin:9px 0 18px;overflow-wrap:anywhere;white-space:pre-wrap;max-height:200px;overflow:auto}.evidence{padding-top:13px;border-top:1px solid var(--line);margin-top:12px}.evidence small{color:var(--muted);display:block;font-size:11px}.evidence-text{margin:4px 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.evidence-note{font-size:12px;color:var(--muted);margin:6px 0 0}.field-head{display:flex;justify-content:space-between;margin-bottom:8px;gap:10px}.field-count{font-size:11px;color:var(--muted)}.fields{max-height:min(430px,calc(100dvh - 380px));min-height:180px;overflow:auto;overscroll-behavior:contain;padding-right:5px}.group-title{font-size:11px;color:var(--muted);font-weight:400;margin:16px 0 4px}.field{display:flex;text-align:left;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 9px;border-radius:4px;border:0;border-bottom:1px solid var(--line);background:transparent}.field:hover{background:#eaf0e7}.field.selected-row{background:#e0eee4;box-shadow:inset 3px 0 var(--green)}.field code{font-size:12px}.field-value{font-size:12px;color:var(--muted);text-align:right;max-width:48%;overflow-wrap:anywhere}.field-mark{color:var(--amber);font-size:11px;margin-left:5px}.extra{border-top:1px solid var(--line);margin-top:18px;padding-top:10px}.extra summary{cursor:pointer;font-size:12px;color:var(--muted);padding:5px 0}.full-json{margin-top:28px;border-top:1px solid var(--line);padding-top:15px}.full-json summary{cursor:pointer}.full-json pre{padding:20px;background:white;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line);border-radius:8px;font-size:12px}.foot{border-top:1px solid var(--line);margin-top:28px;padding-top:14px;display:flex;gap:20px;justify-content:space-between;font-size:11px;color:var(--muted)}[hidden]{display:none!important}
+.paper{isolation:isolate}.focus-shade{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}.paper.has-focus .hotspot:not(.active){opacity:.18}.paper.has-focus .hotspot.active{z-index:4;border:3px solid #00a879;background:transparent;box-shadow:0 0 0 2px #fff,0 0 0 5px #00a87980,0 0 22px 6px #00a87955}.paper.has-focus .hotspot.mixed.active{border-color:#edaa35;box-shadow:0 0 0 2px #fff,0 0 0 5px #edaa3590,0 0 22px 6px #edaa3560}.selected.focused{border-color:#087f68;box-shadow:0 0 0 2px #087f6826,inset 4px 0 #087f68}.details.has-focus .field.selected-row{background:#d5eddf;box-shadow:inset 5px 0 var(--green)}.details.has-focus .field.selected-row code{font-weight:700}
+@media(max-width:740px){.wrap{padding:20px 16px 30px}.layout{grid-template-columns:1fr;gap:24px}.details{position:static}.fields{max-height:440px}.docbar{flex-wrap:wrap}.topline{align-items:start}.stamp{text-align:right}.navigation{max-width:100%}.navigation select{max-width:190px}.paper{width:min(100%,370px)}.foot{flex-direction:column;gap:5px}.image-heading{gap:10px}.legend{justify-content:flex-end}.selected-value{font-size:24px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.wrap{max-width:none;padding:0}.navigation,.tip,.full-json,.extra,.focus-shade{display:none!important}.details{position:static}.fields{max-height:none;overflow:visible}.layout{grid-template-columns:1fr 1fr;gap:20px}.selected{break-inside:avoid}.paper{box-shadow:none}.hotspot{print-color-adjust:exact;opacity:1!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="topline"><span class="eyebrow">OCR / FIELD MAPPING</span><span class="stamp">ภาพต้นฉบับ → ข้อมูลที่อ่านได้</span></header>
+  <h1 id="presentation-title">จากใบเสร็จ สู่ JSON</h1>
+  <p class="intro">ชี้เพื่อดู field · คลิกเพื่อโฟกัส · กด Esc เพื่อดูภาพปกติ</p>
+  <div class="docbar"><div><div class="doc-title" id="document-title"></div><div class="doc-count" id="document-count"></div></div><nav class="navigation" id="navigation" aria-label="เปลี่ยนเอกสาร"><button id="previous" type="button" aria-label="เอกสารก่อนหน้า">←</button><select id="document-picker" aria-label="เลือกเอกสาร"></select><button id="next" type="button" aria-label="เอกสารถัดไป">→</button></nav></div>
+  <div class="layout">
+    <section aria-label="ภาพเอกสารพร้อมกรอบเชื่อม JSON">
+      <div class="image-heading"><span class="section-label">เอกสารต้นฉบับ</span><div class="legend"><span><i class="key"></i>อ่านตรงจากรูป</span><span><i class="key infer"></i>แปลงค่า / อนุมาน</span></div></div>
+      <div class="paper" id="paper"><div class="photo-clip"><img id="receipt-image" alt=""></div><svg class="focus-shade" id="focus-shade" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" hidden><defs><mask id="focus-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><rect width="100" height="100" fill="white"/><g id="focus-holes"></g></mask></defs><rect width="100" height="100" fill="#071b17" fill-opacity=".58" mask="url(#focus-mask)"/></svg><div id="region-layer"></div><div class="tip" id="tooltip" role="tooltip" hidden></div></div>
+      <p class="source-note" id="annotation-method"></p>
+    </section>
+    <section class="details" aria-label="JSON fields และที่มาของค่า">
+      <div class="selected" id="selected-detail"><div class="selected-top"><span class="section-label">FIELD ที่เลือก</span><span class="badge" id="selected-status"></span></div><code class="selected-path" id="selected-path"></code><div class="selected-value" id="selected-value"></div><div id="evidence-list"></div></div>
+      <div class="field-head"><span class="section-label">JSON FIELDS</span><span class="field-count" id="field-count"></span></div>
+      <div class="fields" id="field-list"></div>
+      <details class="extra"><summary id="extra-summary"></summary><div id="extra-fields"></div></details>
+    </section>
+  </div>
+  <details class="full-json"><summary>ดู OCR JSON ต้นฉบับ</summary><pre id="full-json"></pre></details>
+  <footer class="foot"><span>กรอบแสดงที่มาของข้อมูล ไม่ใช่คะแนนความแม่นยำของ OCR</span><span id="footer-count"></span></footer>
+  <span id="announcement" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"></span>
+</main>
+<script>
+const data = /*__OCR_PAYLOAD__*/null;
+const byId = id => document.getElementById(id);
+const labels = {direct:'อ่านตรงจากรูป',transformed:'แปลงรูปแบบ / จัดประเภท',inferred:'อนุมาน',unmapped:'ยังไม่ระบุตำแหน่ง',null:'ไม่มีค่าใน JSON',raw:'ข้อความ OCR ทั้งใบ'};
+let documentIndex = 0, pinnedPath = '', focusEnabled = false;
+let current, regionButtons = [], fieldButtons = [];
+const format = value => value === null ? 'null' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+function mappings(path) {
+  const found = current.regions.flatMap((region,index) => region.fields.filter(field => field.path === path).map(field => ({...field,regionIndex:index})));
+  return found.length ? found : current.fieldNotes?.[path] ? [current.fieldNotes[path]] : [];
+}
+function kindFor(leaf) { return leaf.value === null ? 'null' : leaf.path === 'Raw' ? 'raw' : mappings(leaf.path)[0]?.kind || 'unmapped'; }
+function selectField(path, announce = false) {
+  const leaf = current.leaves.find(item => item.path === path);
+  if (!leaf) return;
+  const kind = kindFor(leaf);
+  byId('selected-path').textContent = path;
+  byId('selected-value').textContent = format(leaf.value);
+  byId('selected-status').textContent = labels[kind];
+  byId('selected-status').className = `badge ${kind}`;
+  byId('evidence-list').replaceChildren();
+  const evidence = mappings(path);
+  if (!evidence.length) evidence.push({ note: kind === 'null' ? 'OCR JSON ระบุ null จึงไม่ผูกกับตำแหน่งบนรูป' : kind === 'raw' ? 'ข้อความ OCR รวมทั้งใบ ไม่มีกรอบเฉพาะจุด' : 'ยังไม่ได้ผูก field นี้กับข้อความบนรูป' });
+  for (const source of evidence) {
+    const block = document.createElement('div'); block.className = 'evidence';
+    const label = document.createElement('small'); label.textContent = source.regionIndex === undefined ? 'ที่มาหรือข้อสังเกต' : `ข้อความบนใบเสร็จ · ${labels[source.kind]}`; block.append(label);
+    if (source.evidence) { const text = document.createElement('div'); text.className='evidence-text'; text.textContent=source.evidence; block.append(text); }
+    if (source.note) { const note=document.createElement('p'); note.className='evidence-note'; note.textContent=source.note; block.append(note); }
+    byId('evidence-list').append(block);
+  }
+  regionButtons.forEach((button,index) => { const on=current.regions[index].fields.some(field=>field.path===path); button.classList.toggle('active',on); button.setAttribute('aria-pressed',String(on)); });
+  const focusedButtons=regionButtons.filter(button=>button.classList.contains('active'));
+  const spotlight=focusEnabled&&focusedButtons.length>0;
+  byId('paper').classList.toggle('has-focus',spotlight);
+  byId('selected-detail').classList.toggle('focused',focusEnabled);
+  document.querySelector('.details').classList.toggle('has-focus',focusEnabled);
+  byId('focus-shade').toggleAttribute('hidden',!spotlight);
+  byId('focus-holes').replaceChildren();
+  if(spotlight) for(const button of focusedButtons){
+    const hole=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    hole.setAttribute('x',parseFloat(button.style.left)-.8);
+    hole.setAttribute('y',parseFloat(button.style.top)-.25);
+    hole.setAttribute('width',parseFloat(button.style.width)+1.6);
+    hole.setAttribute('height',parseFloat(button.style.height)+.5);
+    hole.setAttribute('fill','black');byId('focus-holes').append(hole);
+  }
+  fieldButtons.forEach(button=>{ const on=button.dataset.path===path; button.classList.toggle('selected-row',on); button.setAttribute('aria-pressed',String(on)); });
+  if (announce) byId('announcement').textContent=`${path}: ${format(leaf.value)} · ${labels[kind]}`;
+}
+function hideTip() { byId('tooltip').hidden=true; }
+function showRegion(index, button) {
+  const region=current.regions[index];
+  if(!focusEnabled) selectField(region.fields.some(field=>field.path===pinnedPath) ? pinnedPath : region.fields[0].path);
+  const tip=byId('tooltip'); tip.replaceChildren();
+  for (const field of region.fields) {
+    const line=document.createElement('strong'); line.textContent=field.path; tip.append(line);
+    const value=document.createElement('div'); value.className='tip-value'; value.textContent=`${format(current.leaves.find(leaf=>leaf.path===field.path).value)} · ${labels[field.kind]}`;tip.append(value);
+  }
+  tip.hidden=false;
+  const paper=byId('paper');
+  tip.style.left=`${Math.max(8,Math.min(button.offsetLeft,paper.clientWidth-tip.offsetWidth-8))}px`;
+  tip.style.top=`${Math.max(8,Math.min(button.offsetTop+button.offsetHeight+8,paper.clientHeight-tip.offsetHeight-8))}px`;
+}
+function addField(leaf, target) {
+  const button=document.createElement('button');button.type='button';button.className='field';button.dataset.path=leaf.path;button.setAttribute('aria-pressed','false');
+  const path=document.createElement('code');path.textContent=leaf.path;
+  const kind=kindFor(leaf);
+  if (kind==='inferred'||kind==='transformed') { const mark=document.createElement('span');mark.className='field-mark';mark.textContent='◇';mark.setAttribute('aria-label',labels[kind]);path.append(mark); }
+  const value=document.createElement('span');value.className='field-value';const text=format(leaf.value);value.textContent=text.length>52 ? text.slice(0,49)+'…' : text;
+  button.append(path,value);
+  button.addEventListener('click',()=>{
+    pinnedPath=leaf.path;focusEnabled=true;hideTip();selectField(leaf.path,true);
+    const source=mappings(leaf.path).find(item=>item.regionIndex!==undefined);
+    if(source) regionButtons[source.regionIndex].scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    else byId('selected-detail').scrollIntoView({block:'nearest'});
+  });
+  target.append(button);fieldButtons.push(button);
+}
+function renderDocument(index) {
+  documentIndex=index;current=data.documents[index];current.regions ||= [];focusEnabled=false;
+  hideTip();regionButtons=[];fieldButtons=[];
+  byId('document-title').textContent=current.title;
+  byId('document-count').textContent=`เอกสาร ${index+1} / ${data.documents.length}`;
+  byId('document-picker').value=String(index);byId('previous').disabled=index===0;byId('next').disabled=index===data.documents.length-1;
+  byId('annotation-method').textContent=current.annotationMethod;
+  byId('full-json').textContent=JSON.stringify(current.ocr,null,2);
+  const [cx,cy,cw,ch]=current.crop;
+  byId('paper').style.aspectRatio=`${cw} / ${ch}`;
+  const img=byId('receipt-image');img.src=current.image;img.alt=`ภาพต้นฉบับ: ${current.title}`;
+  Object.assign(img.style,{width:`${current.imageWidth/cw*100}%`,height:`${current.imageHeight/ch*100}%`,left:`${-cx/cw*100}%`,top:`${-cy/ch*100}%`});
+  byId('region-layer').replaceChildren();
+  current.regions.forEach((region,i)=>{
+    const [x,y,w,h]=region.box;
+    const button=document.createElement('button');button.type='button';button.className='hotspot'+(region.fields.some(field=>field.kind!=='direct')?' mixed':'');
+    button.setAttribute('aria-label',region.fields.map(field=>field.path).join(', '));button.setAttribute('aria-describedby','tooltip');button.setAttribute('aria-pressed','false');
+    Object.assign(button.style,{left:`${(x*current.imageWidth-cx)/cw*100}%`,top:`${(y*current.imageHeight-cy)/ch*100}%`,width:`${w*current.imageWidth/cw*100}%`,height:`${h*current.imageHeight/ch*100}%`});
+    button.addEventListener('pointerenter',()=>showRegion(i,button));
+    button.addEventListener('pointerleave',()=>{hideTip();selectField(pinnedPath);});
+    button.addEventListener('focus',()=>showRegion(i,button));
+    button.addEventListener('blur',()=>{hideTip();selectField(pinnedPath);});
+    button.addEventListener('click',()=>{
+      pinnedPath=region.fields.some(field=>field.path===pinnedPath)?pinnedPath:region.fields[0].path;
+      focusEnabled=true;selectField(pinnedPath,true);showRegion(i,button);
+    });
+    byId('region-layer').append(button);regionButtons.push(button);
+  });
+  byId('field-list').replaceChildren();byId('extra-fields').replaceChildren();
+  const primary=current.leaves.filter(leaf=>leaf.value!==null&&leaf.path!=='Raw');
+  const extra=current.leaves.filter(leaf=>leaf.value===null||leaf.path==='Raw');
+  let group='';
+  for (const leaf of primary) {
+    const next=leaf.path.startsWith('Supplier.')?'ผู้ขาย':leaf.path.startsWith('Customer.')?'ผู้ซื้อ':leaf.path.startsWith('Items[')?'รายการสินค้า':/^(SubTotal|Discount|Tax|Tip|Total|AmountDue|PreviousBalance)$/.test(leaf.path)?'ยอดเงิน':'ข้อมูลเอกสาร';
+    if(group!==next){group=next;const heading=document.createElement('h2');heading.className='group-title';heading.textContent=group;byId('field-list').append(heading);}
+    addField(leaf,byId('field-list'));
+  }
+  extra.forEach(leaf=>addField(leaf,byId('extra-fields')));
+  byId('extra-summary').textContent=`Raw และ field ที่เป็น null (${extra.length})`;
+  byId('field-count').textContent=`${primary.length} fields มีค่า`;
+  byId('footer-count').textContent=`${current.regions.length} กรอบ · ${current.leaves.length} JSON fields`;
+  pinnedPath=primary.find(leaf=>leaf.path==='Supplier.Name')?.path || primary[0]?.path || current.leaves[0].path;
+  selectField(pinnedPath);
+}
+document.title=data.title;byId('presentation-title').textContent=data.title;
+data.documents.forEach((doc,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=doc.title;byId('document-picker').append(option);});
+byId('navigation').hidden=data.documents.length===1;
+byId('document-picker').addEventListener('change',event=>renderDocument(Number(event.target.value)));
+byId('previous').addEventListener('click',()=>renderDocument(documentIndex-1));
+byId('next').addEventListener('click',()=>renderDocument(documentIndex+1));
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){focusEnabled=false;hideTip();selectField(pinnedPath);}});
+renderDocument(0);
+</script>
+</body>
+</html>
