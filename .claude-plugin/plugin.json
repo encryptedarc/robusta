@@ -1,7 +1,7 @@
 {
   "name": "robusta",
-  "version": "0.2.0",
-  "description": "Drip, Pillow, and interactive OCR field presentations for Claude Code and Codex.",
+  "version": "0.3.0",
+  "description": "Drip, Pillow, and OCR Lens for Claude Code and Codex.",
   "author": {
     "name": "Encrypted Arc"
   },

@@ -1,4 +1,0 @@
-interface:
-  display_name: "OCR Field Presentation"
-  short_description: "Map receipt images to JSON in interactive HTML"
-  default_prompt: "Use $ocr-field-presentation to turn these image and OCR JSON pairs into one interactive HTML presentation."

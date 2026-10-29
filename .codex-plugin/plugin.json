@@ -1,7 +1,7 @@
 {
   "name": "robusta",
-  "version": "0.2.0",
-  "description": "Drip, Pillow, and interactive OCR field presentations for Claude Code and Codex.",
+  "version": "0.3.0",
+  "description": "Drip, Pillow, and OCR Lens for Claude Code and Codex.",
   "author": {
     "name": "Encrypted Arc"
   },
@@ -10,8 +10,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Robusta",
-    "shortDescription": "Engineering workflows and OCR field presentations",
-    "longDescription": "Coordinate workers through Orca with Drip, run an approved engineering queue with Pillow, or map receipt images to OCR JSON in interactive offline HTML presentations.",
+    "shortDescription": "Engineering workflows and OCR Lens",
+    "longDescription": "Coordinate workers through Orca with Drip, run an approved engineering queue with Pillow, or use OCR Lens to map receipt images to OCR JSON in interactive offline HTML presentations.",
     "developerName": "Encrypted Arc",
     "category": "Developer Tools"
   }

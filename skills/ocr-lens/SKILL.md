@@ -1,9 +1,9 @@
 ---
-name: ocr-field-presentation
+name: ocr-lens
 description: Create a portable interactive HTML presentation mapping supplied receipt or document images to their OCR JSON fields, including batches of image and JSON pairs.
 ---
 
-# OCR field presentation
+# OCR Lens
 
 Use supplied image/JSON pairs to explain where extracted fields came from. Default to one self-contained, offline HTML file with document navigation, image highlights, field-to-image selection, and hover/focus/click details. Preserve the supplied JSON exactly; this workflow explains OCR output and does not silently correct or rerun OCR.
 
@@ -39,4 +39,4 @@ Make a clicked region unmistakable: use a thick high-contrast outline with a whi
 
 Build all pairs in one invocation and one output file. For large batches the output size grows with the embedded original images; disclose that trade-off. A multi-document fixture made by duplicating one receipt can test navigation, but must never be presented as multiple distinct real OCR examples.
 
-Example request: “ใช้ $ocr-field-presentation สร้าง presentation จากรูปและ OCR JSON ทั้ง 5 คู่ ชี้กรอบแล้วเห็น JSON path และรวมเป็น HTML ไฟล์เดียว”
+Example request: “ใช้ $ocr-lens สร้าง presentation จากรูปและ OCR JSON ทั้ง 5 คู่ ชี้กรอบแล้วเห็น JSON path และรวมเป็น HTML ไฟล์เดียว”

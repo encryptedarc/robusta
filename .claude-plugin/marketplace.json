@@ -1,6 +1,6 @@
 {
   "name": "robusta",
-  "description": "Robusta plugins for engineering workflows and OCR field presentations.",
+  "description": "Robusta plugins for engineering workflows and OCR Lens.",
   "owner": {
     "name": "Encrypted Arc"
   },
@@ -8,7 +8,7 @@
     {
       "name": "robusta",
       "source": "./",
-      "description": "Drip, Pillow, and interactive OCR field presentations."
+      "description": "Drip, Pillow, and OCR Lens."
     }
   ]
 }
