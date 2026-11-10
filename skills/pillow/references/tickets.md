@@ -6,6 +6,7 @@ A ticket is the single artifact a worker receives. It must stand alone: a fresh 
 
 - Each ticket is a **tracer bullet**: a narrow but complete path through every layer the change touches, demoable or verifiable on its own. Not one layer of many things.
 - Each ticket fits one fresh context window. If you cannot describe it in a screen, split it.
+- A ticket's implementation, required verification and recovery reserve must fit the available time. When a ticket changes DI, constructors or shared test fixtures, schedule targeted caller/fixture smoke checks before mutation runs or the full suite. List required mutations and their narrowest applicable test filters before dispatch.
 - Declare **Blocked by**: only tickets whose result this one genuinely needs. A ticket with no blockers can start immediately, and independent tickets may run in parallel.
 - **Ownership must be disjoint** between tickets that can run at the same time. Two makers editing one file is the most common way a night produces nothing mergeable. Shared files (a DI registry, a JSON context) get an append-only rule under a comment naming the ticket.
 - Prefactoring that makes the real change easy is its own ticket, first.
@@ -40,9 +41,11 @@ Only when a ticket moves a write or other side effect, record the before/after o
 
 **Status:** ready | running | review | done | parked | failed | blocked
 
-**Block reason:** none | blocked_permission | <decision or dependency>
+**Block reason:** none | blocked_permission | execution_timeout | worker_lost | execution_unavailable | <decision or dependency>
 
 **Execution:** <absolute working directory> · Git level: L<n>
+
+**Time budget:** <estimate and hard limit per command and worker role; attempt ID and stop-by time supplied at dispatch> · Runner: <approved absolute path/invocation and execution.md reference>
 
 **Baseline:** <base commit or none> · Snapshot: <absolute snapshots/NN-before/ path>
 
@@ -74,6 +77,7 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 - On host denial: stop, record blocked_permission below and return; do not change permissions or retry through another tool. See <absolute path to permissions.md supplied by coordinator>
 
 ## Acceptance
+- [ ] <ordered smoke checks when applicable, then required build/test and mutation commands with limits>
 - [ ] <verify command> passes
 - [ ] <observable behaviour the reviewer can point to in the diff>
 - [ ] Result section below is filled in
@@ -84,10 +88,10 @@ _(written by the maker; the reviewer never reads it as evidence)_
 - Did:
 - Verified by:
 - Did not do, and why:
-- Block reason: <none | blocked_permission> · Action/command: <sanitized | none> · Host reason/evidence: <sanitized | none> · Last completed step: <step>
+- Block reason: <none | blocked_permission | execution_timeout | execution_unavailable> · Action/command: <sanitized | none> · Evidence: <sanitized receipt, live task ID or host reason | none> · Last completed step: <step>
 - Needs a human decision: <none | question with options>
 
 ## Review
 _(appended by the coordinator per round)_
-- Round 1: PASS | FAIL | BLOCKED_PERMISSION — <finding file:line or command evidence — rule; permission blocks consume no fix round>
+- Round 1: PASS | FAIL | BLOCKED_PERMISSION | EXECUTION_INTERRUPTED — <rule and finding, permission evidence, or attempt/command evidence; permission and execution interruptions consume no fix round>
 ```

@@ -12,6 +12,7 @@ Scope
 Risk
 - Which tickets are high-risk: production data, sending anything, money, security controls, schema or data migrations, deletions, large ports with unclear behaviour? These are parked unless the user approves each by name.
 - For each ticket, what is the verify command or check that proves it works without a human looking?
+- Which targeted smoke checks should run before costly verification? Record which mutations are required, their filters and estimated cost. Keep the required combined and whole-run checks in the contract.
 - What is the whole-run review target/base and scope? For an existing branch/PR resolve its comparison base; for L0/plain folders save the run-start manifest. Reserve time/usage for the final reviewer inside the existing cap/deadline.
 
 Decisions Pillow may make alone
@@ -31,7 +32,8 @@ Time and budget
 
 Run while the user is still present. A failed item is reported now, not discovered at night.
 
-- [ ] Every verify command ran once on the baseline; its output is saved in the run folder so a reviewer can diff existing behaviour byte-for-byte
+- [ ] The current host passed command-tree and worker supervision probes per [execution.md](execution.md); record role coverage and `Execution preflight: ready` before dispatch
+- [ ] Every verify command ran once on the baseline using the approved bounded runner; save its output and elapsed time in the run folder
 - [ ] `gh auth status` or `az account show` succeeds when L3 or tracker intake needs it
 - [ ] Permission inventory covers each role's actions/commands and all worktree, build, run-folder, Result, snapshot and recovery paths per [permissions.md](permissions.md)
 - [ ] Current-host coordinator and worker policies have evidence of no-prompt rejection, planned action/path coverage and bounded checks; record ready, blocked or unknown. Only ready allows dispatch; a build/test dry-run alone is insufficient
@@ -52,9 +54,11 @@ Run while the user is still present. A failed item is reported now, not discover
 - Git level: L<0-3>
 - Permission host: <provider/version, machine/session reference, working/run-folder path scope; no secrets>
 - Effective policies: coordinator = <approval/sandbox/access scope + evidence>; maker/reviewer = <effective policy + evidence, not assumed inheritance>
-- Required permissions: <role -> action/exact command form -> paths; include worker creation, Result/run-folder writes, snapshots, recovery and Git operations at the approved level>
+- Required permissions: <role -> action/exact command form -> paths; include runner invocation, worker creation/observation/cancellation, Result/run-folder writes, snapshots, recovery and Git operations at the approved level>
 - Permission preflight: <ready | blocked | unknown> · Checked at: <time/current session> · Coverage/check evidence: <sanitized references/results> · Missing setup: <action/path and user control | none>
 - Deadline: <time> · No new ticket after: <time>
+- Execution preflight: <ready | blocked | unknown> · Worker supervision: <host-managed | coordinator-managed> · Host/runner and per-role probe evidence: <references> · Missing controls: <none or details>
+- Time limits: <command estimates and hard timeouts; attempt estimates and hard limits by role, including final review> · Coordinator check interval: <duration> · Cleanup/handoff reserve: <duration>
 - Usage at bedtime: <remaining>% of <window>, resets <time> (source: user-supplied | tool)
 - Cap window: <identity/duration> · Cap: <n> points · Spent: 0 · Initial stop line: <remaining − n>% (reset accounting: routing.md)
 - Models: fast = <id/effort> · strong = <id/effort> · reviewer = <id/effort>

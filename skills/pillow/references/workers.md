@@ -1,6 +1,6 @@
 # Workers
 
-Workers are subagents of the same AI as the main session. Pillow does not launch another provider's CLI; a machine may have only one agent installed. Every worker receives a ticket path and a working directory, nothing else, and every worker ends by writing into the ticket and stopping. There is no question channel at night, so a worker that needs a decision records it and finishes. The ticket carries required actions/paths, current-host permission evidence and the absolute permissions.md reference. Before dispatch, verify the worker's effective policy per [permissions.md](permissions.md); do not assume the coordinator's policy is inherited.
+Workers are subagents of the same AI as the main session. Give each worker its ticket or final-review package, working directory, attempt ID and stop-by time. The ticket carries required actions/paths, current-host permission evidence and the approved runner. A worker that needs a decision records it and finishes. Verify the worker's effective policy per [permissions.md](permissions.md) and supervise each attempt per [execution.md](execution.md).
 
 ## Maker
 
@@ -9,7 +9,7 @@ Spawn with the strong tier for cross-cutting or investigative tickets, the fast 
 ```
 You are implementing one ticket in isolation. Read <ticket path> in full, then the repository instructions it names.
 Work only inside the files listed under Ownership. Do not commit, push, install anything, or change configuration.
-Run every Acceptance command yourself before you finish. If one fails and you cannot make it pass inside Ownership, stop.
+Run the ticket's smoke checks first, then the remaining Acceptance commands using its bounded runner and attempt limits. Keep start/result evidence for each command and use the specified mutation filters. On timeout, runner error or unknown terminal state, stop code work and return the available receipt or live task ID for coordinator reconciliation. If an assertion fails and you cannot make it pass inside Ownership, stop.
 If a tool returns a host permission denial, stop immediately and record Block reason: blocked_permission, the sanitized action/command and host reason, partial work and last completed step in Result. Return this evidence if writing Result is also denied. Do not retry via another tool, request approval, change policy, or restore files with git checkout/restore; the coordinator owns recovery against the saved snapshot.
 If you hit a decision the ticket does not settle, do not guess: finish what is unambiguous and write the question under "Needs a human decision".
 Finish by filling the ## Result section of the ticket: what you did, how you verified it, what you did not do and why, and any question. Then stop.
@@ -24,7 +24,7 @@ Always a fresh subagent, always the strong tier, never the maker. The reviewer's
 ```
 You are reviewing one ticket. Read <ticket path> but ignore its ## Result section: your evidence is the worktree, not the maker's summary.
 Worktree: <path>. Base: <ref>.
-1. Run every Acceptance command yourself and record the real output.
+1. Run every Acceptance command yourself in the specified order with the approved bounded runner and attempt limits. Record actual exit and output evidence.
 2. Compare the actual working tree with the saved pre-ticket baseline, including additions, deletions and binary files. In Git inspect `git diff <base>`, `git diff --cached <base>`, `git diff`, and `git ls-files --others --exclude-standard`; inspect the contents of new files too. A commit-to-commit diff alone misses the maker's uncommitted work. At L0 compare with the pre-ticket snapshot, so earlier accepted diffs are not attributed to this ticket. In a plain folder use the snapshot manifest and file comparisons. Every changed path must be under Ownership; an outside path is a finding.
 3. For each behavioural Acceptance line, cite the changed file:line that satisfies it. For command checks, deletions, binary changes and Result completion, record the relevant command output, path or artifact instead of inventing a line number.
 4. Check the diff against the repository rules the ticket names.
@@ -33,13 +33,16 @@ Worktree: <path>. Base: <ref>.
 7. Verify important premises in the ticket against actual implementations/callers, reading outside editable Ownership when needed. A false or unsettled spec premise is a separate Spec question, not a fabricated code finding. Accepted exceptions suppress only their exact approved issue; inspect nearby independent defects normally.
 8. When side effects move, trace every later validation/return/throw/catch through helpers and all affected item/input subsets. Check the ticket's approved rejection-state expectations; an incomplete pre-check is not proof that ordering is safe. Unsettled behavior is a Spec question, not permission to invent rollback.
 If a read or verification tool returns a host permission denial, stop and return BLOCKED_PERMISSION with the sanitized action/command and host evidence. Do not repair code or request/change permissions. A test assertion failure remains FAIL.
+For a timeout, runner error or unresolved command state, stop review and return EXECUTION_INTERRUPTED with the available receipt or task ID. The coordinator owns cancellation and reconciliation.
 Return exactly one of:
 PASS
 FAIL
 - <file:line or command/artifact evidence> — <rule or acceptance line> — <what it must be instead>
 BLOCKED_PERMISSION
 - <sanitized action/command and host denial evidence>
-A finding needs a rule and evidence: file:line for source changes, or command output / artifact path for checks and non-text changes. A failed command or unreadable baseline is FAIL unless a host permission denial explains it, in which case use BLOCKED_PERMISSION; never PASS because it has no line number. If you disagree with the ticket's spec itself, say so as a separate "Spec question" rather than a finding.
+EXECUTION_INTERRUPTED
+- <reason, phase and receipt or live task ID>
+A finding needs a rule and evidence: file:line for source changes, or command output / artifact path for checks and non-text changes. A completed verification that fails or an unreadable baseline is FAIL, subject to the permission and execution interruption outcomes above. If you disagree with the ticket's spec itself, say so as a separate "Spec question" rather than a finding.
 ```
 
 ## The review loop, and how it stops
@@ -65,9 +68,9 @@ Before the maker writes, save `snapshots/NN-before/` in the coordinator's run fo
 
 On park or final FAIL:
 
-Confirm the worker has stopped before changing its files. If any archive, restore or recovery check is denied, preserve the live attempt and snapshots, stop dispatch, and record recovery pending per permissions.md. Never replace snapshot recovery with `git checkout -- <path>` or `git restore <path>` against HEAD; that can discard pre-existing changes.
+Confirm the worker is terminal and all its command trees have stopped before changing its files. If termination is unverified, use the handoff in [execution.md](execution.md). If any archive, restore or recovery check is denied, preserve the live attempt and snapshots, stop dispatch, and record recovery pending per permissions.md. Restore from the pre-ticket snapshot to preserve pre-existing changes.
 
-1. Save `patches/NN-roundK.patch` for tracked text and binary changes relative to that snapshot, plus an archive/manifest containing new or untracked files and any content the patch cannot represent. An ordinary `git diff` omits untracked files. Verify the saved attempt can reconstruct the changed files in a temporary directory before restoring anything.
+1. Save `patches/NN-roundK.patch` for tracked text and binary changes relative to that snapshot, plus an archive/manifest containing new or untracked files and any content the patch cannot represent. Include the attempt ID in artifact names for interruptions or repeated attempts in a round to preserve earlier evidence. An ordinary `git diff` omits untracked files. Verify the saved attempt can reconstruct the changed files in a temporary directory before restoring anything.
 2. Restore only the current ticket's changes from `snapshots/NN-before/`, including deleted files and the original index state. Remove only exact paths proven to have been created by this ticket, after archiving them. Do not use a broad clean/reset or restore the shared L0 folder to HEAD. A changed path outside Ownership or an unexplained external edit trips the circuit breaker; preserve it and hand off instead of overwriting it.
 3. Compare bytes, file existence/types and index state with the snapshot. Earlier accepted L0 changes and pre-existing untracked files must remain intact. If recovery does not match, stop the run with the snapshots and attempt archive retained.
 
@@ -78,7 +81,7 @@ The coordinator performs Git operations; workers never commit. A reviewer PASS c
 - **L0:** keep the accepted changes in the work folder, with no commits or branch merges. Run every contract verify command against the cumulative folder, then record the snapshot, accepted content manifest and evidence as done. The next ticket snapshots this cumulative state, including untracked files. Keep snapshots until the user integrates the run.
 - **L1–L3:** after PASS, stage only the reviewed paths in the ticket worktree and verify the staged contents match the reviewed candidate, including new files. Commit there, then immediately record its SHA and the target work-branch base before integration. Fast-forward the work branch to that commit when possible; if another accepted ticket has advanced it, cherry-pick the reviewed ticket commit onto the work branch. This keeps one ticket commit on the work branch without an extra merge commit. Record both the source and integrated SHA when they differ.
 
-Run all contract verify commands on the combined result, not just the build. Only then mark the ticket done, push at L2, or update the draft PR at L3. Keep the ticket worktree and recovery artifacts until integration and verification succeed. If integration conflicts, preserve the in-flight operation and dispatch a subagent with the ticket, both bases and the same Ownership; review the resolved candidate before the coordinator completes it. A combined-result regression stops the run without pushing or claiming done.
+Run all contract verify commands on the combined result using the approved runner. Only then mark the ticket done, push at L2, or update the draft PR at L3. Keep the ticket worktree and recovery artifacts until integration and verification succeed. If integration conflicts, preserve the in-flight operation and dispatch a bounded subagent attempt with the ticket, both bases and the same Ownership. Review the resolved candidate before the coordinator completes it. A combined-result regression stops the run without pushing or claiming done.
 
 Before resuming a pending integration, reconcile the recorded source/integrated SHA with the work branch and Git's in-flight state. An already integrated, verified ticket gets its log repaired, not another cherry-pick. If a crash left the SHA mapping incomplete, compare the candidate patch and target history to establish what was applied; uncertain or externally changed state goes to handoff. At L0 reconcile the accepted manifest with the live snapshot before dispatching anything. Never replay a completed ticket from handoff text alone.
 
@@ -86,7 +89,7 @@ Before resuming a pending integration, reconcile the recorded source/integrated 
 
 At contract time fix the review scope and baseline. For an existing PR/branch, resolve the approved target and comparison base (normally the merge-base with that target) to SHAs so earlier branch changes in scope are included; record the run-start state separately to distinguish pre-existing user work. For a new L1–L3 branch use its approved starting commit. For L0/plain folders capture a run-start snapshot/manifest before the first maker, covering the reviewed project paths, bytes/types/existence and Git index where present; include staged, deleted, binary and untracked paths. Apply the snapshot exclusions above (credentials, run folder and ignored build outputs). Preserve user-owned changes as baseline, not run output. Missing or unreadable required baselines block final review.
 
-After integration, before whole-goal completion, spawn a **fresh strong reviewer of the same provider** on the cumulative candidate. The review package is the contract, all approved ticket specs (ignore maker Results), decision register/coverage, exact exceptions, fixed baseline, candidate identity and verify commands. Apply the Reviewer evidence, secret and denial rules above. Inspect the full scoped diff and relevant read-only callers, not just each ticket's Ownership. Check cross-ticket invariants, GET-to-update round-trips, absent/legacy paths and side effects; run every contract verify command independently. Return PASS, FAIL with evidence, or BLOCKED_PERMISSION. Questions are routed separately and still block completion.
+After integration, before whole-goal completion, spawn a **fresh strong reviewer of the same provider** on the cumulative candidate. The review package is the contract, all approved ticket specs (ignore maker Results), decision register/coverage, exact exceptions, fixed baseline, candidate identity and verify commands. Apply the Reviewer rules and attempt limits above. Inspect the full scoped diff and relevant read-only callers, including cross-ticket invariants, GET-to-update round-trips, absent/legacy paths and side effects. Run every contract verify command independently and return one of the Reviewer outcomes above. Questions are routed separately and still block completion.
 
 Record final state `pending | pass | findings | blocked` with base/candidate identity, approved spec/decision fingerprints, actual verification output and reviewer evidence. For L1–L3 use base and HEAD SHAs **plus** working-tree/index/untracked inventory and content fingerprints; commit diff alone misses live edits. For L0/plain folders use the run-start baseline and cumulative accepted bytes/type/existence/index manifests, not `base...HEAD`. Before accepting the verdict and on resume, compare the actual candidate, review target/base and approved spec/decisions with the reviewed identities. A relevant content/spec/base change invalidates PASS to pending; unexplained external edits follow the existing circuit breaker. A stale log never licenses replay or a completion claim.
 

@@ -2,6 +2,8 @@
 
 These three files are the coordinator's memory. The conversation is not: it gets compacted, the session gets restarted, the quota runs out. Write to the run folder at the moment something happens, never "at the end".
 
+Use timestamps with a time zone and a distinct attempt ID for each dispatch or retry. A host may reuse worker IDs. Keep command IDs and durations per attempt and record idle or quota waits separately. Concurrent durations can overlap, so use the actual start/end for total wall time.
+
 ## runlog.md — append as events occur
 
 | When | Write |
@@ -9,7 +11,13 @@ These three files are the coordinator's memory. The conversation is not: it gets
 | run created | contract summary, usage before start, ticket table with empty result columns |
 | permission preflight / recheck | host/session and path scope, coordinator/worker policies and sanitized evidence, ready/blocked/unknown, missing action/path coverage |
 | permission blocked | blocked_permission, ticket/role, sanitized action/command and host reason, returned denial or pending approval, live worker identity, last completed step, saved artifacts and recovery/integration pending |
-| ticket dispatched | ticket, tier/model actually used, working directory, base commit, snapshot/manifest, time |
+| execution preflight / recheck | actual loaded skill path/revision or fingerprint, host and runner, per-role probes, ready/blocked/unknown and missing controls |
+| dispatching, before spawn | unique attempt ID also used in host dispatch label/metadata, ticket/scope, role, host/session, working directory, base/snapshot or candidate, dispatch time and stop-by time |
+| running, after spawn | attempt ID, worker ID, time, tier/model actually used |
+| dispatch reconciled | attempt ID, host evidence for matched worker, confirmed `not_started` or unresolved state, and the next permitted action |
+| phase starts | attempt ID, role/phase, start and stop-by time |
+| command starts / ends | attempt ID, phase, sanitized command label, task ID if backgrounded, timestamps, elapsed, real exit status, receipt/tree state and output artifact |
+| attempt ends / execution interrupted | attempt/worker IDs, elapsed, outcome (`execution_timeout`, `worker_lost`, `execution_unavailable` or normal result), last phase, live task IDs, cancellation and termination evidence, recovery status |
 | each review round | round number, PASS or the findings in one line each |
 | decision raised / answered | stable ID, source question/options, status, affected tickets/paths, user answer or exact approved authority; retain history even when already answered |
 | decision propagated | approved rule/coverage, conflicts waiting for user, all affected tickets including done ones, review evidence invalidated and re-verification pending |
@@ -28,6 +36,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 - Usage at start: <window> <remaining>% (source) · Cap: <n>%
 - Cap ledger: <window identity/reset boundary> · Last remaining: <n>% · Cumulative spent: <n> points · Source: <measured | estimated; uncertain intervals>
 - Permission preflight: <ready | blocked | unknown> · Current-host evidence: <contract reference> · Blocked actions: <none | sanitized list>
+- Execution preflight: <ready | blocked | unknown> · Loaded skill: <contract reference> · Timing and containment evidence: <reference>
 - Final review: <pending | pass | findings | blocked> · Scope/base: <reference> · Candidate: <HEAD + live-content inventory | cumulative manifest> · Spec/decisions: <fingerprints> · Evidence: <reference | none>
 
 | # | Ticket | Tier (effective) | Round 1 | Round 2 | Round 3 | Status | Commit |
@@ -43,7 +52,8 @@ These three files are the coordinator's memory. The conversation is not: it gets
 |---|---|---|---|
 
 ## Events
-- <time> ▶ 02 dispatched · strong · worktree ../repo-02
+- <time> 02 dispatching · attempt <id> · maker · host/session <ref> · worktree ../repo-02 · snapshot <ref> · stop by <time>
+- <time> ▶ 02 running · attempt <id> · worker <id> · strong
 - <time> ✔ 02 PASS round 1 → merged a1b2c3d · build ok
 - <time> ⏸ 04 parked: <question> → blocks 05
 - <time> ⏳ quota 14% → handoff · reset 05:00
@@ -56,10 +66,11 @@ These three files are the coordinator's memory. The conversation is not: it gets
 
 ```markdown
 # Pillow handoff — <date> <slug>
-- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | cap (<spent>/<cap> points) | deadline | breaker: <rule> | repository changed | blocked_permission
+- Stopped at: <time> · Reason: quota (<remaining>%, reset <time>) | cap (<spent>/<cap> points) | deadline | breaker: <rule> | repository changed | blocked_permission | execution_timeout | worker_lost | execution_unavailable
 - Resume no later than: <deadline>
 - Permission state: <ready | blocked | unknown> · Host/policy evidence: <reference> · Missing capability: <role/action/path | none>
 - Pending approval/live worker: <identity/action | none | unknown> · Recovery/integration: <verified | pending steps and actual saved artifacts>
+- Unresolved attempts: <attempt/worker/command IDs, dispatch or execution phase, deadline, last observation, cancellation and tree status, retained paths | none>
 - Decisions: <open/conflicting IDs and coverage references | none> · Final review: <state, reviewed vs actual candidate/spec identities, evidence and correction counts>
 
 ## Frontier
@@ -70,7 +81,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 - Not started: 06, 07
 
 ## Next steps, in order
-1. Recheck current-host permissions per permissions.md; retain approved Git level. Refresh usage; apply routing.md (new maker requires ≥ 30%; required final review may use the reserve), within cap/deadline
+1. Recheck current-host permission and execution readiness; reconcile active workers and command trees before recovery. Retain approved Git level and apply routing.md, the cap and the time limits.
 2. Review 03 with a fresh reviewer (round 2)
 3. Dispatch 06
 
@@ -78,7 +89,7 @@ These three files are the coordinator's memory. The conversation is not: it gets
 contract.md · runlog.md · tickets/03-*.md
 ```
 
-Resume reads this file, the contract and runlog's cap ledger. Recheck permissions per [permissions.md](permissions.md) before dispatch or mutating reconciliation, even on an unchanged repository or an old contract without permission fields. Read-only reconciliation may proceed where allowed. Reconcile live workers, the actual working directory, snapshots, commit history and pending integration per workers.md before continuing Next steps. Do not re-ask the Git question unless the repository changed from outside. A recorded done ticket is never blindly replayed; cap and deadline stops remain stopped.
+Resume reads this file, the contract and runlog's cap ledger. Reconcile unresolved `dispatching` entries before any new spawn, including worker preflight probes. Read-only reconciliation may proceed where allowed. Recheck [permissions.md](permissions.md) before cancellation, and [execution.md](execution.md) before continuing the frontier. Confirm termination before mutating recovery, then reconcile the working directory, snapshots, commit history and pending integration per workers.md. Apply these checks to old contracts too. Ask the Git question again only when the repository changed from outside. A recorded done ticket is never blindly replayed; cap and deadline stops remain stopped.
 
 Reconcile the decision register and affected-ticket coverage too. Missing legacy final-review identity/evidence means pending, not an assumed PASS; compare the actual base/candidate/spec with reviewed fingerprints before reusing a verdict. Preserve ticket acceptance history while re-verifying affected work.
 
@@ -93,6 +104,7 @@ One screen. Verified facts only; a ticket without a reviewer PASS and resolved d
 
 **Done** <n> · **Waiting for you** <n> · **Failed** <n> · **Not started** <n>
 Time <start>–<end> · Quota waits <count> (<minutes>) · Usage now <remaining>%
+Longest attempts <ticket/role/attempt, elapsed and slowest command or wait> · Execution interruptions <count, reason and recovery state>
 
 **Whole goal:** <verified | incomplete> · **Final review:** <pending | pass | findings | blocked> · Candidate/base/spec: <identities> · Evidence / remaining action: <reference>
 

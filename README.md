@@ -119,6 +119,8 @@ Optional model configuration belongs in `~/.pillow/models.md`, which maps the `f
 
 Pillow is a skill, not a permission manager. Git levels authorize work but do not approve shell commands. Before first dispatch and every resume, Pillow requires current-host evidence that coordinator and workers reject unapproved actions without waiting for a person, plus permission coverage for the planned commands and paths. A successful build/test or `acceptEdits` alone is insufficient.
 
+Unattended runs also require observable worker cancellation and a verified command runner that closes stdin and bounds the command tree by wall time. Pillow bundles a Windows runner for hosts that already have Python 3. Other hosts supply an equivalent runner. If either capability cannot be verified, Pillow hands off before dispatch. See the [execution preflight and recovery procedure](skills/pillow/references/execution.md).
+
 For Claude Code, configure narrowly scoped allow rules through `/permissions` and use a host-supported no-prompt rejection policy such as `dontAsk`; check the actual worker policies too. For Codex, check the effective approval policy and sandbox/path access through the installed host's controls. Permission and command syntax vary by host/version: Pillow reports missing setup for you to configure and never changes settings, hooks or credentials itself. See [permission preflight and recovery](skills/pillow/references/permissions.md) for the evidence required.
 
 For CLI hosts that advertise these flags in `--help`, start the session yourself from the intended project folder, then invoke Pillow:
