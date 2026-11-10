@@ -1,6 +1,6 @@
 {
   "name": "robusta",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Drip, Pillow, and OCR Lens for Claude Code and Codex.",
   "author": {
     "name": "Encrypted Arc"
