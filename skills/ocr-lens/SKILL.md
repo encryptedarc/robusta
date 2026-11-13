@@ -1,6 +1,9 @@
 ---
 name: ocr-lens
 description: Create a portable interactive HTML presentation mapping supplied receipt or document images to their OCR JSON fields, including batches of image and JSON pairs.
+metadata:
+  author: "Encrypted Arc <36179756+encryptedarc@users.noreply.github.com>"
+  tags: [ocr, receipts, html, presentation]
 ---
 
 # OCR Lens

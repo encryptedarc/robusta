@@ -1,6 +1,9 @@
 ---
 name: drip
 description: Coordinate supervised Claude or Codex workers through Orca orchestration, routing each Task by the active accounts' remaining quota while a coordinator waits for and reviews results. Use when the user asks to delegate, parallelize, or monitor work; use an Orca handoff when another agent should take full ownership without supervision.
+metadata:
+  author: "Encrypted Arc <36179756+encryptedarc@users.noreply.github.com>"
+  tags: [orchestration, orca, multi-agent, quota]
 ---
 
 # Drip
