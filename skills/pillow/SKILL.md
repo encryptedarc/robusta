@@ -3,7 +3,7 @@ name: pillow
 description: Run a queue of engineering work while the user is asleep or away. Use whenever the user says goodnight, overnight, pillow, "work while I sleep", "keep going while I'm out", or hands over a batch of work and leaves — even if they do not say "unattended". Settles scope, tickets, git permission and budget with the user first, then runs each ticket through a maker subagent and an independent reviewer subagent, parks anything that needs a human, waits out quota resets, and leaves a morning report. Also handles `resume` of an interrupted run. Not for work where the user will answer questions live.
 metadata:
   author: "Encrypted Arc <36179756+encryptedarc@users.noreply.github.com>"
-  tags: [unattended, overnight, automation, code-review]
+  tags: "unattended, overnight, automation, code-review"
 ---
 
 # Pillow
