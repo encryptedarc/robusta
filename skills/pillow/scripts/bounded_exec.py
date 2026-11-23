@@ -1,4 +1,4 @@
-"""Run one approved Windows command with closed stdin and a process-tree deadline."""
+"""Run one approved Windows command with closed stdin and a Windows Job Object deadline."""
 
 import argparse
 import ctypes
@@ -192,6 +192,7 @@ def main():
         "status": status,
         "exit_code": code,
         "tree": tree,
+        "tree_scope": "job",
         "elapsed_ms": round((time.monotonic() - start) * 1000),
     }), file=sys.stderr, flush=True)
     return code

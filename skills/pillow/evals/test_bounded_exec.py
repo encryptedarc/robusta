@@ -23,7 +23,9 @@ class BoundedExecTests(unittest.TestCase):
         records = [line[len(prefix):] for line in result.stderr.splitlines()
                    if line.startswith(prefix)]
         self.assertEqual(len(records), 1, result.stderr)
-        return result, json.loads(records[0])
+        receipt = json.loads(records[0])
+        self.assertEqual(receipt["tree_scope"], "job")
+        return result, receipt
 
     def test_command_gets_eof_and_keeps_its_exit_code(self):
         result, receipt = self.run_command(

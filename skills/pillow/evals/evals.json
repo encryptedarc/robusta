@@ -2,6 +2,54 @@
   "skill_name": "pillow",
   "evals": [
     {
+      "id": 31,
+      "name": "resume-with-escaped-powershell-probe",
+      "prompt": "Simulate an approved Pillow resume. Last night a direct executable timeout probe passed. Today a required verification script launches its child with PowerShell Start-Process. Its probe returned timed_out, tree stopped, tree_scope job, but the exact child process identity is still live. The worker probe can run while parallel makers start, and the host also offers a sweep by process name. What happens before dispatch and recovery?",
+      "expected_output": "The required launch path failed containment, so leave execution preflight blocked and hand off as execution_unavailable, or complete preflight using an already approved equivalent verified path. Finish preflight before any makers. A job-scoped receipt proves only the job is empty. Reconcile and cancel by the probe's exact process identity through verified controls before recovery. A process-name sweep does not prove termination.",
+      "files": [],
+      "assertions": [
+        "The general direct-executable proof cannot cover Start-Process",
+        "No ordinary workers dispatch alongside the unfinished preflight",
+        "Cancellation and termination evidence are attempt-specific"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "quota-estimate-replaced-before-maker-wave",
+      "prompt": "Simulate Pillow. The last confirmed weekly reading was 43% remaining, with 10 confirmed cap points already spent. The tool is unavailable. A 15-point estimate for subsequent work indicates 28% remaining and blocks makers. The user is present and can read the meter. They report 41% in the same reset window when asked. L1 cap is 20 points, the whole-run review still needs 5 points, and two independent ready makers would each use 2 points including reviewer and integration. All other windows and controls allow dispatch. What happens?",
+      "expected_output": "Ask once for a current reading before deciding the estimated stop and hold dispatch until answered. Reconcile 43 to 41 as a 2-point confirmed charge, replacing the estimated 15 without refunding the prior 10. Eight cap points remain. Reserve 5 for whole-run review, so dispatch at most one of the 2-point tickets and reassess. If the user were away with no fresh reading, keep the conservative estimate and hand off at the estimated cap.",
+      "files": [],
+      "assertions": [
+        "Replaces only the current estimated interval",
+        "Keeps the cap and review reserve even though 41% permits parallelism",
+        "No estimate-based maker dispatch while waiting for the reading"
+      ]
+    },
+    {
+      "id": 33,
+      "name": "combined-verification-reuse-is-per-command",
+      "prompt": "Simulate an L1 Pillow fast-forward after independent review. The contract marks an isolated lint command reusable and notes the needed input equivalence. It also marks a build that embeds git rev-parse HEAD and tests that query a mutable external fixture reusable if those values can be matched. Reviewer ran before the ticket commit, all outputs passed, and the fixture snapshot is unknown. Lint input fingerprint, prerequisites, command and environment all match. What can be reused, and what changes for cherry-pick, resume and whole-run review?",
+      "expected_output": "Reuse only the lint result and log its artifact, candidate identities and input equivalence. Rerun build and fixture tests because Git HEAD changed and fixture equivalence is unproven. Cherry-pick runs fresh combined verification. Resume reconfirms candidate and input evidence before reuse. The whole-run reviewer independently runs every contract verification command.",
+      "files": [],
+      "assertions": [
+        "Exact source bytes alone are insufficient",
+        "A separately eligible command can be reused when all its inputs match",
+        "The actor preserves the whole-run and integration gates"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "mechanical-style-fix-keeps-independent-review",
+      "prompt": "Simulate a Pillow review round. The only findings have exact lines and required edits for blank lines and protected-method naming. No behaviour change or new permission is needed. The repository already has an approved style check in check mode, and the contract has approved fast and strong tiers. Which worker runs, which checks run first, and who reviews?",
+      "expected_output": "Dispatch a fresh fast-tier fix maker for the explicit mechanical findings. Run the existing check-mode style and ticket smoke checks before costlier Acceptance commands. Keep a separate fresh strong reviewer and all required verification.",
+      "files": [],
+      "assertions": [
+        "The fast fix maker does not reuse the previous maker's context",
+        "The maker runs the approved style check early",
+        "Reviewer tier and required verification are preserved"
+      ]
+    },
+    {
       "id": 29,
       "name": "blocking-coordinator-call-near-worker-deadline",
       "prompt": "Simulate Pillow only. Execution preflight supports asynchronous workers and coordinator-managed cancellation, with no independent host timer. At 02:06:30 two workers have stop-by times of 02:07 and 02:11. The check interval is one minute and there are no earlier command deadlines. A reviewed third ticket is ready for Git push, which is approved but the only available push tool blocks until its response with no enforceable time bound. What does the coordinator do now? If a bounded invocation becomes available, what is the latest time it can give control back?",

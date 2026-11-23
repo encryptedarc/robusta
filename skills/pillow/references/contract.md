@@ -12,7 +12,8 @@ Scope
 Risk
 - Which tickets are high-risk: production data, sending anything, money, security controls, schema or data migrations, deletions, large ports with unclear behaviour? These are parked unless the user approves each by name.
 - For each ticket, what is the verify command or check that proves it works without a human looking?
-- Which targeted smoke checks should run before costly verification? Record which mutations are required, their filters and estimated cost. Keep the required combined and whole-run checks in the contract.
+- Which existing style checks and targeted smoke checks should run before costly verification? Record which mutations are required, their filters and estimated cost.
+- Which combined checks can reuse the independent reviewer's result? Record the required equivalence inputs per command and allow time for fresh checks when they cannot be matched. Keep the whole-run checks independent.
 - What is the whole-run review target/base and scope? For an existing branch/PR resolve its comparison base; for L0/plain folders save the run-start manifest. Reserve time/usage for the final reviewer inside the existing cap/deadline.
 
 Decisions Pillow may make alone
@@ -65,7 +66,8 @@ Run while the user is still present. A failed item is reported now, not discover
 - Pillow may decide alone: <list>
 - Must park: <list>
 - High-risk tickets approved by name: <ids or none>
-- Verify commands: <commands>
+- Verify commands: <ordered commands, including style/smoke checks where applicable>
+- Combined verification reuse: <eligible command and equivalence inputs | none>
 - Baseline results: <command → result>
 - Skill loaded: <actual installation path and version/revision or content fingerprint; do not infer from another copy>
 - Whole-run review: scope = <approved branch/PR/run paths>; target/base = <resolved SHAs | plain folder>; run-start snapshot = <path/manifest, including user-owned state>

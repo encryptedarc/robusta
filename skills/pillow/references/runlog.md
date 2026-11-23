@@ -11,7 +11,7 @@ Use timestamps with a time zone and a distinct attempt ID for each dispatch or r
 | run created | contract summary, usage before start, ticket table with empty result columns |
 | permission preflight / recheck | host/session and path scope, coordinator/worker policies and sanitized evidence, ready/blocked/unknown, missing action/path coverage |
 | permission blocked | blocked_permission, ticket/role, sanitized action/command and host reason, returned denial or pending approval, live worker identity, last completed step, saved artifacts and recovery/integration pending |
-| execution preflight / recheck | actual loaded skill path/revision or fingerprint, host and runner, per-role probes, ready/blocked/unknown and missing controls |
+| execution preflight / recheck | actual loaded skill path/revision or fingerprint, host, runner, per-role launch paths, probe identity and independent termination evidence, ready/blocked/unknown and missing controls |
 | dispatching, before spawn | unique attempt ID also used in host dispatch label/metadata, ticket/scope, role, host/session, working directory, base/snapshot or candidate, dispatch time and stop-by time |
 | running, after spawn | attempt ID, worker ID, time, tier/model actually used |
 | dispatch reconciled | attempt ID, host evidence for matched worker, confirmed `not_started` or unresolved state, and the next permitted action |
@@ -23,10 +23,10 @@ Use timestamps with a time zone and a distinct attempt ID for each dispatch or r
 | decision propagated | approved rule/coverage, conflicts waiting for user, all affected tickets including done ones, review evidence invalidated and re-verification pending |
 | final review / invalidation | fixed scope/base, candidate/spec identities, verdict/evidence, stable finding IDs and correction counts; change after PASS returns it to pending |
 | integration pending | reviewed content manifest, source commit SHA, target work-branch base before integration |
-| integrated / L0 accepted | source/integrated SHA or L0 manifest, every contract verify result; only then mark done |
+| integrated / L0 accepted | source/integrated SHA or L0 manifest, each required check's fresh result or reviewer artifact and recorded equivalence; only then mark done |
 | parked | the question, options, recommendation, which tickets it blocks |
 | failed | last findings, where the patch is saved |
-| quota reading / wait | per-window remaining/reset, measured or estimated source, cap ledger (last reading and cumulative spent), what was in flight |
+| quota reading / wait | per-window confirmed remaining/reset and source, cumulative spend through the reading, estimate since and basis, pending reviews and in-flight work |
 | breaker tripped | which rule, what was running |
 | run closed | usage after, lessons for the next contract |
 
@@ -34,7 +34,7 @@ Use timestamps with a time zone and a distinct attempt ID for each dispatch or r
 # Pillow run — <date> <slug>
 - Contract: contract.md · Branch: <name> · Git level: L<n>
 - Usage at start: <window> <remaining>% (source) · Cap: <n>%
-- Cap ledger: <window identity/reset boundary> · Last remaining: <n>% · Cumulative spent: <n> points · Source: <measured | estimated; uncertain intervals>
+- Cap ledger: <window identity/reset boundary> · Last confirmed remaining: <n>% (<time/source>) · Spent through reading: <n> points · Estimate since: <n> points (<basis>) · Earlier uncertain intervals: <references | none>
 - Permission preflight: <ready | blocked | unknown> · Current-host evidence: <contract reference> · Blocked actions: <none | sanitized list>
 - Execution preflight: <ready | blocked | unknown> · Loaded skill: <contract reference> · Timing and containment evidence: <reference>
 - Final review: <pending | pass | findings | blocked> · Scope/base: <reference> · Candidate: <HEAD + live-content inventory | cumulative manifest> · Spec/decisions: <fingerprints> · Evidence: <reference | none>

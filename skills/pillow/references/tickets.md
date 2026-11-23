@@ -60,7 +60,7 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 
 ## Constraints
 - Follow <CLAUDE.md / AGENTS.md / ADR …>; read it before starting
-- <repository rule that commonly breaks here>
+- <recurring style rules that apply to this change and their existing check-mode command, or the changed-line check>
 - Do not commit, push, install dependencies, or change configuration
 - Do not read or print credential files or environment values that look like secrets
 - Routing: <tier → model/effort> — reason
@@ -77,7 +77,7 @@ Files and folders this worker may create or edit. Everything else is read-only, 
 - On host denial: stop, record blocked_permission below and return; do not change permissions or retry through another tool. See <absolute path to permissions.md supplied by coordinator>
 
 ## Acceptance
-- [ ] <ordered smoke checks when applicable, then required build/test and mutation commands with limits>
+- [ ] <ordered style and smoke checks when applicable, then required build/test and mutation commands with limits>
 - [ ] <verify command> passes
 - [ ] <observable behaviour the reviewer can point to in the diff>
 - [ ] Result section below is filled in
